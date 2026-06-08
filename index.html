@@ -713,7 +713,10 @@ function queueBadge(q) {
   return `<span class="badge ${cls}">${label}</span>`;
 }
 
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) {
+  const str = s == null ? '' : (Array.isArray(s) ? s.join(', ') : String(s));
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 function leadCard(l) {
   const score   = l.score ? `<span class="lead-score ${scoreClass(l.score)}">${l.score}</span>` : '';
