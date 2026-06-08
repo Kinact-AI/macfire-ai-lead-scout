@@ -1,0 +1,8 @@
+# Supabase credentials — never commit this
+config.js
+
+# Node / build artefacts
+node_modules/
+dist/
+.env
+.env.local
