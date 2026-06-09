@@ -42,3 +42,8 @@ If the user returns to Lead Scout dashboard work, likely next areas are:
 - Instagram uses compliant Graph API routes only: hashtag recent media and business discovery for configured usernames.
 - Required env vars are `IG_ACCESS_TOKEN` and `IG_BUSINESS_ACCOUNT_ID`; optional lists are `IG_HASHTAGS` and `IG_MONITORED_USERNAMES`.
 - Production pipeline now has social evidence fields and the dashboard renders `social_evidence`, `social_summary`, and `social_platforms_checked` when present.
+
+## 2026-06-09 - Run observability surfaced
+
+- Dashboard now reads Supabase `scout_runs` and renders a compact run-health strip.
+- This makes server-side job freshness, fetched count, qualified count, and write count visible without opening GitHub Actions or Supabase.

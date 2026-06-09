@@ -25,6 +25,7 @@ Recent dashboard features already present:
 - Four-dimension confidence scoring
 - Social scraper support modules for Facebook, X, LinkedIn, and Instagram
 - Production social evidence display for `social_evidence`, `social_summary`, and checked platforms
+- Scout run health strip from Supabase `scout_runs`
 
 ## Files
 
