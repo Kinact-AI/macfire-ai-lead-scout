@@ -29,20 +29,34 @@ that is why. Ask for the local workspace or work against Supabase directly.
 
 ## Current status
 
-- Dashboard live, reading Supabase, with lead detail drawer, shareable
-  lead URLs, Street View, confidence breakdown, director appointment
-  history and website signal detection
-- Notion export complete: 483 leads exported, 15 missing-CH-number pages
-  and 25 duplicates archived, 443 active leads cleaned and ready to import
-- Production next steps, in order:
-  1. Apply `supabase/schema.sql` in the Supabase SQL editor, then run the
-     migration script with `--apply` to import the 443 leads
-  2. Port the Companies House signal to `scout/runner.py` and dry-run
-     locally against the Supabase leads table
-  3. Set up the GitHub Actions daily workflow with repo secrets for the
-     first live server-side run
-- Once Supabase is live, retire the old Notion AI Scout workspace so there
-  is a single source of truth
+- Dashboard live, reading Supabase, with:
+  - Lead detail drawer (Street View image, 4-dimension confidence
+    breakdown, director + appointment history, web signals)
+  - URL-shareable filters (q, status, priority, queue, sort, sector) and
+    individual leads (?lead=uuid auto-opens the drawer)
+  - Sticky filter toolbar with status, priority, queue and sort controls
+  - Sector quick-filter chip strip (top 8 sectors by lead count)
+  - Saved views: name a filter snapshot, restore from a dropdown
+    (persisted in browser localStorage)
+  - Not Relevant tab with one-click "Add back to queue" action
+  - Latest-run chip in the header (run date + lead count + priority breakdown)
+- 443 leads imported from the Notion source of truth
+- Production scout pipeline (in `macfire-production` repo): Companies
+  House signal + Google Places + Street View + 4-dimension confidence +
+  website auto-detection + director appointment history + planning
+  applications signal + re-enrichment queue.
+
+## Dashboard rules
+
+- This is a public repo. **Never check in secrets.** `config.js` ships
+  with the Supabase anon key only; the service-role key belongs in the
+  `macfire-production` repo's GitHub Actions secrets.
+- After any meaningful change to `index.html`, push to `main` (GH Pages
+  picks it up automatically), then update the macfire-projects-dashboard
+  data file with a plain-English line in `recentWins`.
+- Writing style: never use em dashes in user-visible copy (use comma,
+  period, parentheses or colon instead). This applies to subtitle,
+  labels, and any text you put in the UI.
 
 ## Related
 

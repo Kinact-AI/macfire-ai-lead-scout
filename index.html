@@ -216,6 +216,48 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
 .tab-pane{display:none}
 .tab-pane.active{display:block}
 
+/* ── Toolbar, chips, saved views ───────────────────────────────── */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;
+  background:var(--panel,var(--card,#1c2444));border:1px solid var(--border);
+  border-radius:8px;padding:10px;position:sticky;top:60px;z-index:20;
+  backdrop-filter:saturate(140%) blur(6px)}
+.toolbar input,.toolbar select{background:rgba(255,255,255,.07);border:1px solid var(--border);
+  color:var(--text);font-size:13px;padding:8px 10px;border-radius:6px;outline:none}
+.toolbar input{min-width:240px;flex:1}
+.toolbar select{min-width:140px}
+.toolbar-btn{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);
+  font-size:12px;padding:7px 12px;border-radius:6px;cursor:pointer;transition:background .12s,border-color .12s}
+.toolbar-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25)}
+
+.chip-strip{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center}
+.chip-strip .chip-label{font-size:10px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.6px;margin-right:4px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.05);
+  border:1px solid var(--border);color:var(--text);font-size:11px;padding:5px 11px;
+  border-radius:14px;cursor:pointer;transition:background .12s,border-color .12s,color .12s;white-space:nowrap}
+.chip:hover{background:rgba(255,255,255,.1)}
+.chip .chip-count{color:var(--muted);font-size:10px;font-weight:600}
+.chip.active{background:rgba(99,102,241,.2);border-color:rgba(99,102,241,.5);color:#A5B4FC}
+.chip.active .chip-count{color:#A5B4FC}
+
+.views-wrap{position:relative;display:inline-block}
+.views-menu{position:absolute;top:calc(100% + 6px);right:0;min-width:240px;
+  background:var(--panel,var(--card,#1c2444));border:1px solid var(--border);border-radius:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);padding:6px;display:none;z-index:30}
+.views-menu.open{display:block}
+.views-menu .vm-item{display:flex;align-items:center;justify-content:space-between;
+  padding:7px 10px;border-radius:5px;cursor:pointer;font-size:12px;gap:8px}
+.views-menu .vm-item:hover{background:rgba(255,255,255,.06)}
+.views-menu .vm-item .vm-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.views-menu .vm-item .vm-del{background:none;border:none;color:var(--muted);
+  font-size:14px;cursor:pointer;padding:0 4px;line-height:1}
+.views-menu .vm-item .vm-del:hover{color:#E74C3C}
+.views-menu .vm-empty{padding:14px 10px;color:var(--muted);font-size:11px;text-align:center}
+.views-menu .vm-divider{height:1px;background:var(--border);margin:4px 0}
+.views-menu .vm-save{padding:7px 10px;border-radius:5px;cursor:pointer;font-size:12px;
+  color:#A5B4FC;font-weight:600}
+.views-menu .vm-save:hover{background:rgba(99,102,241,.15)}
+
 /* ── Overflowing container ────────────────────────────────────── */
 .scroll-x{overflow-x:auto}
 </style>
@@ -373,15 +415,14 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
       </div>
 
       <div class="tab-pane" id="tab-all">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <div class="chip-strip" id="sector-chip-strip">
+          <span class="chip-label">Sector</span>
+          <span class="chip active" data-sector="" onclick="setSectorFilter('')">All</span>
+        </div>
+        <div class="toolbar">
           <input type="text" id="search-input" placeholder="Search company, address, sector…"
-            style="background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);
-            font-size:13px;padding:7px 12px;border-radius:6px;outline:none;width:280px"
             oninput="renderAll()"/>
-          <select id="all-status-filter"
-            style="background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--text);
-            font-size:13px;padding:7px 10px;border-radius:6px;outline:none"
-            onchange="renderAll()">
+          <select id="all-status-filter" onchange="renderAll()">
             <option value="">All statuses</option>
             <option value="New Lead">New Lead</option>
             <option value="Contacted">Contacted</option>
@@ -390,16 +431,33 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
             <option value="No Response">No Response</option>
             <option value="Not Relevant">Not Relevant</option>
           </select>
-          <select id="all-priority-filter"
-            style="background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--text);
-            font-size:13px;padding:7px 10px;border-radius:6px;outline:none"
-            onchange="renderAll()">
+          <select id="all-priority-filter" onchange="renderAll()">
             <option value="">All priorities</option>
             <option value="High">High</option>
             <option value="Medium">Medium</option>
             <option value="Low">Low</option>
           </select>
-          <span style="color:var(--muted);font-size:12px" id="all-count"></span>
+          <select id="all-queue-filter" onchange="renderAll()">
+            <option value="">All queues</option>
+            <option value="Ready">Ready</option>
+            <option value="Research">Research</option>
+            <option value="Insufficient">Needs Data</option>
+          </select>
+          <select id="all-sort" onchange="renderAll()">
+            <option value="score">Sort by score</option>
+            <option value="date">Sort by scout date</option>
+            <option value="company">Sort by company</option>
+          </select>
+          <span style="color:var(--muted);font-size:12px;flex:1" id="all-count"></span>
+          <div class="views-wrap">
+            <button class="toolbar-btn" id="views-toggle" onclick="toggleViewsMenu()">Saved views ▾</button>
+            <div class="views-menu" id="views-menu">
+              <div id="views-list"></div>
+              <div class="vm-divider"></div>
+              <div class="vm-save" onclick="saveCurrentView()">+ Save current view</div>
+            </div>
+          </div>
+          <button class="toolbar-btn" onclick="clearAllFilters()" title="Reset all filters">Clear</button>
         </div>
         <div id="all-container"><div class="loading">Loading…</div></div>
       </div>
@@ -724,6 +782,7 @@ function renderAll_data() {
 
   renderPipeline(stats.sc, _leads.length);
   renderCharts(stats);
+  renderSectorChips();
   renderQualified();
   renderContactNeeded();
   renderRecent();
@@ -944,28 +1003,177 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeLeadDrawer();
 });
 
-// ── URL <-> filter sync (B2) ──────────────────────────────────────────────
+// ── Sector chip filter ───────────────────────────────────────────────────
+let _sectorFilter = '';
+
+function setSectorFilter(sector) {
+  _sectorFilter = sector || '';
+  document.querySelectorAll('#sector-chip-strip .chip').forEach(c => {
+    c.classList.toggle('active', (c.dataset.sector || '') === _sectorFilter);
+  });
+  renderAll();
+}
+
+function renderSectorChips() {
+  const strip = document.getElementById('sector-chip-strip');
+  if (!strip) return;
+  strip.querySelectorAll('.chip[data-sector]:not([data-sector=""])').forEach(c => c.remove());
+  const counts = {};
+  _leads.forEach(l => {
+    const s = (l.sector || '').trim();
+    if (s) counts[s] = (counts[s] || 0) + 1;
+  });
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  top.forEach(([name, count]) => {
+    const chip = document.createElement('span');
+    chip.className = 'chip' + (_sectorFilter === name ? ' active' : '');
+    chip.dataset.sector = name;
+    chip.onclick = () => setSectorFilter(name);
+    chip.innerHTML = `${esc(name)} <span class="chip-count">${count}</span>`;
+    strip.appendChild(chip);
+  });
+}
+
+// ── URL <-> filter sync ──────────────────────────────────────────────────
 function applyFiltersFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  const s = document.getElementById('search-input');
-  const st = document.getElementById('all-status-filter');
-  const pr = document.getElementById('all-priority-filter');
-  if (s && params.get('q') !== null) s.value = params.get('q');
-  if (st && params.get('status') !== null) st.value = params.get('status');
-  if (pr && params.get('priority') !== null) pr.value = params.get('priority');
+  const set = (id, key) => {
+    const el = document.getElementById(id);
+    if (el && params.get(key) !== null) el.value = params.get(key);
+  };
+  set('search-input', 'q');
+  set('all-status-filter', 'status');
+  set('all-priority-filter', 'priority');
+  set('all-queue-filter', 'queue');
+  set('all-sort', 'sort');
+  _sectorFilter = params.get('sector') || '';
 }
 
 function syncFiltersToUrl() {
   const params = new URLSearchParams(window.location.search);
-  const q  = document.getElementById('search-input')?.value || '';
-  const st = document.getElementById('all-status-filter')?.value || '';
-  const pr = document.getElementById('all-priority-filter')?.value || '';
-  if (q)  params.set('q', q);  else params.delete('q');
-  if (st) params.set('status', st); else params.delete('status');
-  if (pr) params.set('priority', pr); else params.delete('priority');
+  const pairs = {
+    q: document.getElementById('search-input')?.value || '',
+    status: document.getElementById('all-status-filter')?.value || '',
+    priority: document.getElementById('all-priority-filter')?.value || '',
+    queue: document.getElementById('all-queue-filter')?.value || '',
+    sort: document.getElementById('all-sort')?.value || '',
+    sector: _sectorFilter || '',
+  };
+  for (const [k, v] of Object.entries(pairs)) {
+    if (v && !(k === 'sort' && v === 'score')) params.set(k, v); else params.delete(k);
+  }
   const qs = params.toString();
   history.replaceState(null, '', qs ? '?' + qs : window.location.pathname);
 }
+
+function clearAllFilters() {
+  ['search-input', 'all-status-filter', 'all-priority-filter', 'all-queue-filter']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const sortEl = document.getElementById('all-sort');
+  if (sortEl) sortEl.value = 'score';
+  _sectorFilter = '';
+  document.querySelectorAll('#sector-chip-strip .chip').forEach(c => {
+    c.classList.toggle('active', !c.dataset.sector);
+  });
+  renderAll();
+}
+
+// ── Saved views (localStorage) ───────────────────────────────────────────
+const VIEWS_KEY = 'macfire_saved_views_v1';
+
+function loadSavedViews() {
+  try { return JSON.parse(localStorage.getItem(VIEWS_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+
+function persistSavedViews(views) {
+  localStorage.setItem(VIEWS_KEY, JSON.stringify(views));
+}
+
+function currentFilterSnapshot() {
+  return {
+    q: document.getElementById('search-input')?.value || '',
+    status: document.getElementById('all-status-filter')?.value || '',
+    priority: document.getElementById('all-priority-filter')?.value || '',
+    queue: document.getElementById('all-queue-filter')?.value || '',
+    sort: document.getElementById('all-sort')?.value || 'score',
+    sector: _sectorFilter || '',
+  };
+}
+
+function saveCurrentView() {
+  const snap = currentFilterSnapshot();
+  const isEmpty = !snap.q && !snap.status && !snap.priority && !snap.queue && !snap.sector && snap.sort === 'score';
+  if (isEmpty) {
+    alert('Set at least one filter before saving a view.');
+    return;
+  }
+  const suggested = [snap.priority, snap.sector, snap.status, snap.queue, snap.q]
+    .filter(Boolean).join(' · ') || 'Custom view';
+  const name = prompt('Name this view:', suggested);
+  if (!name) return;
+  const views = loadSavedViews();
+  views.push({ id: Date.now().toString(36), name: name.trim(), snap });
+  persistSavedViews(views);
+  renderSavedViews();
+  closeViewsMenu();
+}
+
+function applySavedView(id) {
+  const v = loadSavedViews().find(x => x.id === id);
+  if (!v) return;
+  const s = v.snap || {};
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  setVal('search-input', s.q);
+  setVal('all-status-filter', s.status);
+  setVal('all-priority-filter', s.priority);
+  setVal('all-queue-filter', s.queue);
+  setVal('all-sort', s.sort || 'score');
+  _sectorFilter = s.sector || '';
+  document.querySelectorAll('#sector-chip-strip .chip').forEach(c => {
+    c.classList.toggle('active', (c.dataset.sector || '') === _sectorFilter);
+  });
+  renderAll();
+  closeViewsMenu();
+}
+
+function deleteSavedView(id, ev) {
+  ev?.stopPropagation();
+  if (!confirm('Delete this view?')) return;
+  persistSavedViews(loadSavedViews().filter(v => v.id !== id));
+  renderSavedViews();
+}
+
+function renderSavedViews() {
+  const list = document.getElementById('views-list');
+  if (!list) return;
+  const views = loadSavedViews();
+  if (!views.length) {
+    list.innerHTML = '<div class="vm-empty">No saved views yet. Configure filters then click "Save current view".</div>';
+    return;
+  }
+  list.innerHTML = views.map(v => `
+    <div class="vm-item" onclick="applySavedView('${v.id}')">
+      <span class="vm-name" title="${esc(v.name)}">${esc(v.name)}</span>
+      <button class="vm-del" onclick="deleteSavedView('${v.id}', event)" title="Delete">✕</button>
+    </div>`).join('');
+}
+
+function toggleViewsMenu() {
+  const m = document.getElementById('views-menu');
+  if (!m) return;
+  m.classList.toggle('open');
+  if (m.classList.contains('open')) renderSavedViews();
+}
+
+function closeViewsMenu() {
+  document.getElementById('views-menu')?.classList.remove('open');
+}
+
+document.addEventListener('click', (ev) => {
+  const wrap = document.querySelector('.views-wrap');
+  if (wrap && !wrap.contains(ev.target)) closeViewsMenu();
+});
 
 function leadCard(l) {
   const score   = l.score ? `<span class="lead-score ${scoreClass(l.score)}">${l.score}</span>` : '';
@@ -1100,11 +1308,23 @@ function renderAll() {
   const q  = (document.getElementById('search-input')?.value || '').toLowerCase();
   const st = document.getElementById('all-status-filter')?.value || '';
   const pr = document.getElementById('all-priority-filter')?.value || '';
+  const qu = document.getElementById('all-queue-filter')?.value || '';
+  const sec = _sectorFilter;
+  const sort = document.getElementById('all-sort')?.value || 'score';
   const filtered = _leads.filter(l => {
     const match = !q || [l.company, l.address, l.sector, l.postcode, l.director, l.flags, l.profile_status, l.reasoning, l.google_places]
       .join(' ').toLowerCase().includes(q);
     const notRelevantOk = st === 'Not Relevant' || l.status !== 'Not Relevant';
-    return match && notRelevantOk && (!st || l.status === st) && (!pr || l.priority === pr);
+    return match
+      && notRelevantOk
+      && (!st || l.status === st)
+      && (!pr || l.priority === pr)
+      && (!qu || l.enrichmentQueue === qu)
+      && (!sec || l.sector === sec);
+  }).sort((a, b) => {
+    if (sort === 'date') return (b.scout_date || '').localeCompare(a.scout_date || '') || (b.score || 0) - (a.score || 0);
+    if (sort === 'company') return (a.company || '').localeCompare(b.company || '');
+    return (b.score || 0) - (a.score || 0);
   });
   document.getElementById('all-count').textContent = `${filtered.length} lead${filtered.length !== 1 ? 's' : ''}`;
   document.getElementById('all-container').innerHTML = filtered.length
