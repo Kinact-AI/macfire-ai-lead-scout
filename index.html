@@ -263,29 +263,23 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
     </svg>
     <div style="margin-left:14px">
       <div style="font-size:15px;font-weight:700">AI Lead Scout</div>
-      <div class="hdr-sub">Private Commercial Planning Leads — Central Scotland</div>
+      <div class="hdr-sub">Private Commercial Planning Leads, Central Scotland</div>
     </div>
   </div>
   <div class="header-right">
+    <div class="hdr-latest-run" id="hdr-latest-run" style="display:none;align-items:center;gap:8px;background:rgba(195,30,31,.1);border:1px solid rgba(195,30,31,.3);border-radius:8px;padding:6px 12px;font-size:12px">
+      <span style="font-size:16px">🔥</span>
+      <div style="line-height:1.3">
+        <div style="font-weight:700;color:var(--accent2)" id="hdr-run-label">Latest Run</div>
+        <div style="color:var(--muted)" id="hdr-run-detail">—</div>
+      </div>
+    </div>
     <div class="last-updated"><span class="live-dot"></span><span id="last-updated">Loading…</span></div>
     <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
   </div>
 </div>
 
 <div class="container">
-
-  <!-- Today banner -->
-  <div class="date-banner" id="date-banner" style="display:none">
-    <span style="font-size:18px">🔥</span>
-    <div>
-      <strong id="today-label" style="color:var(--accent2)">Latest Run</strong>
-      — <span id="today-count">—</span> leads added
-      &nbsp;·&nbsp;
-      <span id="today-priority-high" style="color:#E74C3C;font-weight:700"></span>
-      <span id="today-priority-med"  style="color:#F0B429;font-weight:700"></span>
-      <span id="today-priority-low"  style="color:var(--muted);font-weight:700"></span>
-    </div>
-  </div>
 
   <!-- KPI row -->
   <div class="grid-4" id="kpi-row">
@@ -344,6 +338,7 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
         <button class="tab-btn" data-tab="recent">📋 Recent</button>
         <button class="tab-btn" data-tab="contracted">✅ Contracted</button>
         <button class="tab-btn" data-tab="all">All Leads</button>
+        <button class="tab-btn" data-tab="not-relevant">🚫 Not Relevant <span id="tab-count-not-relevant" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
       </div>
 
       <div class="tab-pane active" id="tab-qualified">
@@ -407,6 +402,14 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
           <span style="color:var(--muted);font-size:12px" id="all-count"></span>
         </div>
         <div id="all-container"><div class="loading">Loading…</div></div>
+      </div>
+
+      <div class="tab-pane" id="tab-not-relevant">
+        <div class="section-header">
+          <div class="section-title">Marked not relevant</div>
+          <div class="section-badge" id="not-relevant-count-badge">0</div>
+        </div>
+        <div id="not-relevant-container"><div class="loading">Loading…</div></div>
       </div>
     </div>
 
@@ -702,14 +705,21 @@ function renderAll_data() {
   document.getElementById('kpi-research').textContent   = stats.queueCounts.Research;
   document.getElementById('kpi-insufficient').textContent = stats.queueCounts.Insufficient;
 
-  // Today banner
+  // Latest run chip (header)
   if (stats.lastDate) {
-    document.getElementById('date-banner').style.display  = 'flex';
-    document.getElementById('today-label').textContent    = `Last Run (${stats.lastDate})`;
-    document.getElementById('today-count').textContent    = stats.todayLeads.length;
-    document.getElementById('today-priority-high').textContent = stats.todayPriority.High ? `${stats.todayPriority.High} High  ` : '';
-    document.getElementById('today-priority-med').textContent  = stats.todayPriority.Medium ? `${stats.todayPriority.Medium} Medium  ` : '';
-    document.getElementById('today-priority-low').textContent  = stats.todayPriority.Low ? `${stats.todayPriority.Low} Low` : '';
+    const chip = document.getElementById('hdr-latest-run');
+    if (chip) {
+      chip.style.display = 'flex';
+      const tp = stats.todayPriority || {};
+      const parts = [];
+      if (tp.High) parts.push(`${tp.High} High`);
+      if (tp.Medium) parts.push(`${tp.Medium} Med`);
+      if (tp.Low) parts.push(`${tp.Low} Low`);
+      document.getElementById('hdr-run-label').textContent =
+        `Last Run (${stats.lastDate})`;
+      document.getElementById('hdr-run-detail').textContent =
+        `${stats.todayLeads.length} leads${parts.length ? ' · ' + parts.join(', ') : ''}`;
+    }
   }
 
   renderPipeline(stats.sc, _leads.length);
@@ -718,6 +728,7 @@ function renderAll_data() {
   renderContactNeeded();
   renderRecent();
   renderContracted();
+  renderNotRelevant();
   renderAll();
 }
 
@@ -1003,7 +1014,9 @@ function leadCard(l) {
     <div class="lead-actions" onclick="event.stopPropagation()">
       ${l.status !== 'Contacted' ? `<button class="lead-action-btn contacted-btn" onclick="updateStatus('${l.id}','Contacted')">Mark Contacted</button>` : ''}
       ${l.status !== 'Meeting Booked' ? `<button class="lead-action-btn" style="border-color:rgba(125,60,152,.4);color:#A569BD" onclick="updateStatus('${l.id}','Meeting Booked')">Meeting Booked</button>` : ''}
-      ${l.status !== 'Not Relevant' ? `<button class="lead-action-btn notrel-btn" onclick="updateStatus('${l.id}','Not Relevant')">Not Relevant</button>` : ''}
+      ${l.status === 'Not Relevant'
+        ? `<button class="lead-action-btn" style="border-color:rgba(99,102,241,.45);color:#A5B4FC" onclick="updateStatus('${l.id}','New Lead')">Add back to queue</button>`
+        : `<button class="lead-action-btn notrel-btn" onclick="updateStatus('${l.id}','Not Relevant')">Not Relevant</button>`}
     </div>
   </div>`;
 }
@@ -1043,7 +1056,7 @@ function renderContactNeeded() {
 
 function renderRecent() {
   const leads = [..._leads]
-    .filter(l => l.scout_date)
+    .filter(l => l.scout_date && l.status !== 'Not Relevant')
     .sort((a,b) => (b.scout_date > a.scout_date ? 1 : b.scout_date < a.scout_date ? -1 : (b.score||0) - (a.score||0)))
     .slice(0,20);
   document.getElementById('recent-container').innerHTML = leads.length
@@ -1070,6 +1083,18 @@ function renderContracted() {
     : '<div class="empty">No contracted customers yet.</div>';
 }
 
+function renderNotRelevant() {
+  const leads = _leads.filter(l => l.status === 'Not Relevant')
+    .sort((a, b) => (b.score || 0) - (a.score || 0));
+  const badge = document.getElementById('not-relevant-count-badge');
+  const tabCount = document.getElementById('tab-count-not-relevant');
+  if (badge) badge.textContent = leads.length;
+  if (tabCount) tabCount.textContent = leads.length ? `(${leads.length})` : '';
+  document.getElementById('not-relevant-container').innerHTML = leads.length
+    ? leads.map(leadCard).join('')
+    : '<div class="empty">Nothing marked Not Relevant. Use the button on any lead to move it here.</div>';
+}
+
 function renderAll() {
   syncFiltersToUrl();
   const q  = (document.getElementById('search-input')?.value || '').toLowerCase();
@@ -1078,7 +1103,8 @@ function renderAll() {
   const filtered = _leads.filter(l => {
     const match = !q || [l.company, l.address, l.sector, l.postcode, l.director, l.flags, l.profile_status, l.reasoning, l.google_places]
       .join(' ').toLowerCase().includes(q);
-    return match && (!st || l.status === st) && (!pr || l.priority === pr);
+    const notRelevantOk = st === 'Not Relevant' || l.status !== 'Not Relevant';
+    return match && notRelevantOk && (!st || l.status === st) && (!pr || l.priority === pr);
   });
   document.getElementById('all-count').textContent = `${filtered.length} lead${filtered.length !== 1 ? 's' : ''}`;
   document.getElementById('all-container').innerHTML = filtered.length
