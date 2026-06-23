@@ -326,7 +326,6 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
     </svg>
     <div style="margin-left:14px">
       <div style="font-size:15px;font-weight:700">AI Lead Scout</div>
-      <div class="hdr-sub">Private Commercial Planning Leads, Central Scotland</div>
     </div>
   </div>
   <div class="header-right">
@@ -856,8 +855,8 @@ function enrichLead(l) {
   if (hasContact) ps += 20;
 
   let queue;
-  if ((l.lead_state || '').toLowerCase() === 'sales_ready') queue = 'Ready';
-  else if ((l.profile_status || '').toLowerCase() === 'minimum_profile_complete') queue = 'Ready';
+  if ((l.lead_state || '').toLowerCase() === 'sales_ready' && hasContact) queue = 'Ready';
+  else if ((l.profile_status || '').toLowerCase() === 'minimum_profile_complete' && hasContact) queue = 'Ready';
   else if (ps >= 75 && hasContact) queue = 'Ready';
   else if ((l.missing_profile_fields || '').toString().trim()) queue = 'Research';
   else if (ps >= 45)          queue = 'Research';
