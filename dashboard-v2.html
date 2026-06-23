@@ -174,41 +174,24 @@ a{color:inherit;text-decoration:none}
   padding:5px 14px;font-size:12px;font-weight:600;color:var(--ink-2);box-shadow:var(--shadow-xs);
 }
 
-/* === Stat cards ======================================================== */
-.grid-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:14px}
-@media(max-width:1050px){.grid-stats{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:500px){.grid-stats{grid-template-columns:1fr 1fr;gap:10px}}
+/* === Stat cards (v1 structure, v2 colours) ============================= */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+@media(max-width:1050px){.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.grid-4{grid-template-columns:1fr 1fr;gap:10px}}
 .stat-card{
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-  padding:20px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden;
-  border-left-width:3px;
+  background:var(--surface);border:1px solid var(--line);border-radius:11px;
+  padding:18px 20px;box-shadow:var(--shadow-xs);
 }
-.stat-card.c-brand{border-left-color:var(--brand)}
-.stat-card.c-amber{border-left-color:var(--amber-mid)}
-.stat-card.c-ok{border-left-color:var(--ok-mid)}
-.stat-card.c-sky{border-left-color:var(--sky-mid)}
-.stat-card .label{color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.07em;margin-bottom:12px}
-.stat-card .value{font-size:34px;font-weight:700;line-height:1;letter-spacing:-.03em;margin-bottom:7px;
-  font-variant-numeric:tabular-nums}
-.stat-card.c-brand .value{color:var(--brand)}
-.stat-card.c-amber .value{color:var(--amber-mid)}
-.stat-card.c-ok    .value{color:var(--ok-mid)}
-.stat-card.c-sky   .value{color:var(--sky-mid)}
-.stat-card .sub{color:var(--muted);font-size:12px}
-.stat-strip{
-  display:flex;gap:0;align-items:stretch;flex-wrap:wrap;
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-  margin-bottom:24px;box-shadow:var(--shadow-xs);overflow:hidden;
-}
-.strip-item{
-  display:flex;flex-direction:row;align-items:baseline;
-  padding:9px 16px;font-size:12px;color:var(--muted);gap:6px;
-  border-right:1px solid var(--line);flex:1;min-width:80px;
-}
-.strip-item:last-child{border-right:none}
-.strip-item b{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap}
-@media(max-width:720px){.strip-item{min-width:70px}.strip-item b{font-size:14px}}
+.stat-card.accent{border-left:3px solid var(--brand)}
+.stat-card .label{color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;margin-bottom:7px}
+.stat-card .value{font-size:30px;font-weight:700;line-height:1;margin-bottom:3px;
+  font-variant-numeric:tabular-nums;color:var(--ink)}
+.stat-card .value.v2-brand{color:var(--brand)}
+.stat-card .value.v2-amber{color:var(--amber-mid)}
+.stat-card .value.v2-green{color:var(--ok-mid)}
+.stat-card .value.v2-muted{color:var(--muted)}
+.stat-card .sub{color:var(--muted);font-size:11px}
 
 /* === Analytics accordion =============================================== */
 .analytics-toggle{
@@ -565,51 +548,51 @@ a{color:inherit;text-decoration:none}
     <span id="run-banner-text">Loading lead data.</span>
   </div>
 
-  <!-- Primary KPI cards -->
-  <div class="grid-stats">
-    <div class="stat-card c-brand">
-      <div class="label">High priority</div>
-      <div class="value num" id="kpi-high">—</div>
-      <div class="sub">Score 75 or higher</div>
+  <!-- KPI row 1 -->
+  <div class="grid-4">
+    <div class="stat-card accent">
+      <div class="label">Total Leads</div>
+      <div class="value num" id="kpi-total">—</div>
+      <div class="sub" id="kpi-days">Loading…</div>
     </div>
-    <div class="stat-card c-amber">
-      <div class="label">Qualified and ready</div>
-      <div class="value num" id="kpi-ready">—</div>
-      <div class="sub">Ready to contact now</div>
+    <div class="stat-card">
+      <div class="label">High Priority</div>
+      <div class="value num v2-brand" id="kpi-high">—</div>
+      <div class="sub">Score 75+</div>
     </div>
-    <div class="stat-card c-ok">
-      <div class="label">Meetings booked</div>
-      <div class="value num" id="kpi-meetings">—</div>
-      <div class="sub">From this pipeline</div>
+    <div class="stat-card">
+      <div class="label">Qualified &amp; Ready</div>
+      <div class="value num v2-amber" id="kpi-ready">—</div>
+      <div class="sub">Ready to contact</div>
     </div>
-    <div class="stat-card c-sky">
-      <div class="label">Contracted</div>
-      <div class="value num" id="kpi-contracted">—</div>
-      <div class="sub">Signed customers</div>
+    <div class="stat-card">
+      <div class="label">Contacted</div>
+      <div class="value num" id="kpi-contacted">—</div>
+      <div class="sub" id="kpi-responded">— responded</div>
     </div>
   </div>
 
-  <!-- Secondary stat strip -->
-  <div class="stat-strip">
-    <div class="strip-item">
-      <b class="num" id="kpi-total">—</b>
-      <span>Total leads</span>
+  <!-- KPI row 2 -->
+  <div class="grid-4" style="margin-top:-8px;margin-bottom:24px">
+    <div class="stat-card">
+      <div class="label">Meetings Booked</div>
+      <div class="value num v2-brand" id="kpi-meetings">—</div>
+      <div class="sub">From pipeline</div>
     </div>
-    <div class="strip-item">
-      <b class="num" id="kpi-contacted">—</b>
-      <span>Contacted</span>
+    <div class="stat-card">
+      <div class="label">Contracted</div>
+      <div class="value num v2-green" id="kpi-contracted">—</div>
+      <div class="sub">Signed customers</div>
     </div>
-    <div class="strip-item">
-      <b class="num" id="kpi-responded">—</b>
-      <span>Responded</span>
+    <div class="stat-card">
+      <div class="label">Contact Info Needed</div>
+      <div class="value num v2-amber" id="kpi-research">—</div>
+      <div class="sub">High priority, no contact</div>
     </div>
-    <div class="strip-item">
-      <b class="num" id="kpi-research">—</b>
-      <span>Need contact info</span>
-    </div>
-    <div class="strip-item">
-      <b class="num" id="kpi-insufficient">—</b>
-      <span>Need profile data</span>
+    <div class="stat-card">
+      <div class="label">Needs Profile Data</div>
+      <div class="value num v2-muted" id="kpi-insufficient">—</div>
+      <div class="sub">High priority, incomplete</div>
     </div>
   </div>
 
@@ -1074,14 +1057,15 @@ function setTabCount(id, n) {
 }
 function renderAll_data() {
   const stats = computeStats(_leads);
-  document.getElementById('kpi-ready').textContent       = stats.queueCounts.Ready;
-  document.getElementById('kpi-high').textContent        = stats.pc.High;
-  document.getElementById('kpi-meetings').textContent    = stats.meetings;
-  document.getElementById('kpi-contracted').textContent  = stats.contracted;
-  document.getElementById('kpi-total').textContent       = _leads.length;
-  document.getElementById('kpi-contacted').textContent   = stats.contacted;
-  document.getElementById('kpi-responded').textContent   = stats.responded;
-  document.getElementById('kpi-research').textContent    = stats.queueCounts.Research;
+  document.getElementById('kpi-total').textContent        = _leads.length;
+  document.getElementById('kpi-days').textContent         = `${stats.dates.length} scout run${stats.dates.length !== 1 ? 's' : ''}`;
+  document.getElementById('kpi-high').textContent         = stats.pc.High;
+  document.getElementById('kpi-ready').textContent        = stats.queueCounts.Ready;
+  document.getElementById('kpi-contacted').textContent    = stats.contacted;
+  document.getElementById('kpi-responded').textContent    = `${stats.responded} responded`;
+  document.getElementById('kpi-meetings').textContent     = stats.meetings;
+  document.getElementById('kpi-contracted').textContent   = stats.contracted;
+  document.getElementById('kpi-research').textContent     = stats.queueCounts.Research;
   document.getElementById('kpi-insufficient').textContent = stats.queueCounts.Insufficient;
 
   if (stats.lastDate) {
