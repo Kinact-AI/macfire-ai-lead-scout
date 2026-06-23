@@ -1081,7 +1081,7 @@ function renderAll_data() {
   }
 
   const active  = _leads.filter(l => l.status !== 'Not Relevant');
-  const qLeads  = [...active.filter(l => l.priority==='High'), ...active.filter(l => l.priority!=='High' && l.enrichmentQueue==='Ready')].slice(0,30);
+  const qLeads  = [...active.filter(l => l.priority==='High' && l.enrichmentQueue==='Ready'), ...active.filter(l => l.priority!=='High' && l.enrichmentQueue==='Ready')].slice(0,30);
   const cnLeads = _leads.filter(l => l.priority==='High' && l.enrichmentQueue==='Research' && l.status!=='Not Relevant');
   const reLeads = [..._leads].filter(l => l.scout_date && l.status!=='Not Relevant')
     .sort((a,b)=>(b.scout_date||'').localeCompare(a.scout_date||'')||(b.score||0)-(a.score||0)).slice(0,20);
@@ -1569,7 +1569,7 @@ async function updateStatus(id, newStatus, notes) {
 // === Render sections =====================================================
 function renderQualified() {
   const active = _leads.filter(l => l.status !== 'Not Relevant');
-  const high   = active.filter(l => l.priority === 'High').sort((a,b) => (b.score||0)-(a.score||0));
+  const high   = active.filter(l => l.priority === 'High' && l.enrichmentQueue === 'Ready').sort((a,b) => (b.score||0)-(a.score||0));
   const ready  = active.filter(l => l.priority !== 'High' && l.enrichmentQueue === 'Ready').sort((a,b) => (b.score||0)-(a.score||0));
   const leads  = [...high, ...ready].slice(0, 30);
   document.getElementById('qualified-container').innerHTML = leads.length
