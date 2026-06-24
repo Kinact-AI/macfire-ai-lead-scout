@@ -913,6 +913,7 @@ function computeStats(leads) {
     if (['contracted','customer','won','closed won'].includes((l.status||'').toLowerCase())) contracted++;
   });
 
+  const high = leads.filter(l => l.priority === 'High' && l.status !== 'Not Relevant');
   const queueCounts = {
     Ready:       leads.filter(l => l.priority === 'High' && l.enrichmentQueue === 'Ready'       && l.status !== 'Not Relevant').length,
     Research:    leads.filter(l => l.priority === 'High' && l.enrichmentQueue === 'Research'    && l.status !== 'Not Relevant').length,
