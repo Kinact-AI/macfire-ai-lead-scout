@@ -1080,9 +1080,10 @@ function renderAll_data() {
 
 // === Pipeline ============================================================
 function renderPipeline(sc) {
-  const max = Math.max(...Object.values(sc), 1);
+  const rows = Object.entries(sc).filter(([k]) => k !== 'Email Sent');
+  const max = Math.max(...rows.map(([,v]) => v), 1);
   document.getElementById('pipeline-container').innerHTML =
-    Object.entries(sc).map(([k,v]) => `
+    rows.map(([k,v]) => `
       <div class="pipeline-row">
         <span class="pipeline-label">${k}</span>
         <span class="pipeline-track">

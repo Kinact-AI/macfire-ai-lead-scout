@@ -946,9 +946,10 @@ const STATUS_COLORS = {
 };
 
 function renderPipeline(sc, total) {
-  const max = Math.max(...Object.values(sc), 1);
+  const rows = Object.entries(sc).filter(([k]) => k !== 'Email Sent');
+  const max = Math.max(...rows.map(([, v]) => v), 1);
   document.getElementById('pipeline-container').innerHTML =
-    Object.entries(sc).map(([k, v]) => `
+    rows.map(([k, v]) => `
       <div class="pipeline-row">
         <div class="pipeline-label">${k}</div>
         <div class="pipeline-bar-wrap">
