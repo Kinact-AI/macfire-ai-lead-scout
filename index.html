@@ -67,7 +67,6 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
   border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:3px 10px;
   transition:color .15s,border-color .15s;white-space:nowrap}
 .hdr-v2:hover{color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.22)}
-@media(max-width:720px){.hdr-v2{display:none}}
 .refresh-btn{background:var(--card2);border:1px solid var(--border);color:var(--text);
   padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;transition:background .15s}
 .refresh-btn:hover{background:var(--border)}
@@ -337,8 +336,9 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
       <text x="213" y="57" font-family="Impact,'Arial Black',sans-serif" font-size="34" fill="#ffffff" textLength="53" lengthAdjust="spacingAndGlyphs">Ltd</text>
       <text x="135" y="83" text-anchor="middle" dominant-baseline="central" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="17" fill="#C31E1F" letter-spacing="1.5">Fire Protection Company</text>
     </svg>
-    <div style="margin-left:14px">
+    <div style="margin-left:14px;display:flex;align-items:center;gap:10px">
       <div style="font-size:15px;font-weight:700">AI Lead Scout</div>
+      <a href="dashboard-v2.html" class="hdr-v2">New design</a>
     </div>
   </div>
   <div class="header-right">
@@ -349,7 +349,6 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
         <div style="color:var(--muted)" id="hdr-run-detail">—</div>
       </div>
     </div>
-    <a href="dashboard-v2.html" class="hdr-v2">New design</a>
     <div class="last-updated"><span class="live-dot"></span><span id="last-updated">Loading…</span></div>
     <button class="refresh-btn" onclick="refreshData()">↻ Refresh</button>
   </div>
