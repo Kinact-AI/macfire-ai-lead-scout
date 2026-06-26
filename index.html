@@ -364,9 +364,9 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
       <div class="sub">Score 75+</div>
     </div>
     <div class="stat-card">
-      <div class="label">Qualified &amp; Ready</div>
+      <div class="label">Email Queue</div>
       <div class="value" style="color:var(--green)" id="kpi-ready">—</div>
-      <div class="sub">Ready to contact</div>
+      <div class="sub">Has email, not yet sent</div>
     </div>
     <div class="stat-card">
       <div class="label">Contacted</div>
@@ -403,98 +403,52 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
     <!-- LEFT: tabbed lead views -->
     <div>
       <div class="tabs">
-        <button class="tab-btn active" data-tab="qualified">🏆 Qualified</button>
-        <button class="tab-btn" data-tab="contact-needed">🔎 Contact Needed</button>
-        <button class="tab-btn" data-tab="recent">📋 Recent</button>
-        <button class="tab-btn" data-tab="contracted">✅ Contracted</button>
-        <button class="tab-btn" data-tab="all">All Leads</button>
-        <button class="tab-btn" data-tab="not-relevant">🚫 Not Relevant <span id="tab-count-not-relevant" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn active" data-tab="email-queue">Email Queue <span id="tab-count-email-queue" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn" data-tab="phone-queue">Phone Queue <span id="tab-count-phone-queue" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn" data-tab="outreach">Outreach <span id="tab-count-outreach" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn" data-tab="responded">Responded <span id="tab-count-responded" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn" data-tab="research">Research <span id="tab-count-research" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn" data-tab="not-relevant">Not Relevant <span id="tab-count-not-relevant" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
       </div>
 
-      <div class="tab-pane active" id="tab-qualified">
+      <div class="tab-pane active" id="tab-email-queue">
         <div class="section-header">
-          <div class="section-title">High priority &amp; outreach-ready</div>
-          <div class="section-badge" id="qualified-count-badge">0</div>
+          <div class="section-title">Ready to email</div>
+          <div class="section-badge" id="email-queue-count-badge">0</div>
         </div>
-        <div id="qualified-container"><div class="loading">Loading…</div></div>
+        <div id="email-queue-container"><div class="loading">Loading…</div></div>
       </div>
 
-      <div class="tab-pane" id="tab-contact-needed">
+      <div class="tab-pane" id="tab-phone-queue">
         <div class="section-header">
-          <div class="section-title">High priority — needs contact discovery</div>
+          <div class="section-title">Ready to phone</div>
+          <div class="section-badge" id="phone-queue-count-badge">0</div>
         </div>
-        <div id="contact-needed-container"><div class="loading">Loading…</div></div>
+        <div id="phone-queue-container"><div class="loading">Loading…</div></div>
       </div>
 
-      <div class="tab-pane" id="tab-recent">
+      <div class="tab-pane" id="tab-outreach">
         <div class="section-header">
-          <div class="section-title">Latest 20 across all runs</div>
+          <div class="section-title">Outreach in progress</div>
+          <div class="section-badge" id="outreach-count-badge">0</div>
         </div>
-        <div class="scroll-x">
-          <div id="recent-container"><div class="loading">Loading…</div></div>
-        </div>
+        <div id="outreach-container"><div class="loading">Loading…</div></div>
       </div>
 
-      <div class="tab-pane" id="tab-contracted">
+      <div class="tab-pane" id="tab-responded">
         <div class="section-header">
-          <div class="section-title">Leads converted to customers</div>
+          <div class="section-title">Responded or meeting booked</div>
+          <div class="section-badge" id="responded-count-badge">0</div>
         </div>
-        <div id="contracted-container"><div class="loading">Loading…</div></div>
+        <div id="responded-container"><div class="loading">Loading…</div></div>
       </div>
 
-      <div class="tab-pane" id="tab-all">
-        <div class="chip-strip" id="sector-chip-strip">
-          <span class="chip-label">Sector</span>
-          <span class="chip active" data-sector="" onclick="setSectorFilter('')">All</span>
+      <div class="tab-pane" id="tab-research">
+        <div class="section-header">
+          <div class="section-title">Needs contact info</div>
+          <div class="section-badge" id="research-count-badge">0</div>
         </div>
-        <div class="toolbar">
-          <input type="text" id="search-input" placeholder="Search company, address, sector…"
-            oninput="renderAll()"/>
-          <select id="all-status-filter" onchange="renderAll()">
-            <option value="">All statuses</option>
-            <option value="New Lead">New Lead</option>
-            <option value="Contacted">Contacted</option>
-            <option value="Email Sent">Email Sent</option>
-            <option value="Responded">Responded</option>
-            <option value="Meeting Booked">Meeting Booked</option>
-            <option value="No Response">No Response</option>
-            <option value="Not Relevant">Not Relevant</option>
-          </select>
-          <select id="all-priority-filter" onchange="renderAll()">
-            <option value="">All priorities</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
-          <select id="all-queue-filter" onchange="renderAll()">
-            <option value="">All queues</option>
-            <option value="Ready">Ready</option>
-            <option value="Research">Research</option>
-            <option value="Insufficient">Needs Data</option>
-          </select>
-          <select id="all-channel-filter" onchange="renderAll()">
-            <option value="">All channels</option>
-            <option value="Ready to email">Ready to email</option>
-            <option value="Ready to phone">Ready to phone</option>
-            <option value="Needs data">Needs data</option>
-          </select>
-          <select id="all-sort" onchange="renderAll()">
-            <option value="score">Sort by score</option>
-            <option value="date">Sort by scout date</option>
-            <option value="company">Sort by company</option>
-          </select>
-          <span style="color:var(--muted);font-size:12px;flex:1" id="all-count"></span>
-          <div class="views-wrap">
-            <button class="toolbar-btn" id="views-toggle" onclick="toggleViewsMenu()">Saved views ▾</button>
-            <div class="views-menu" id="views-menu">
-              <div id="views-list"></div>
-              <div class="vm-divider"></div>
-              <div class="vm-save" onclick="saveCurrentView()">+ Save current view</div>
-            </div>
-          </div>
-          <button class="toolbar-btn" onclick="clearAllFilters()" title="Reset all filters">Clear</button>
-        </div>
-        <div id="all-container"><div class="loading">Loading…</div></div>
+        <div id="research-container"><div class="loading">Loading…</div></div>
       </div>
 
       <div class="tab-pane" id="tab-not-relevant">
@@ -939,7 +893,8 @@ function renderAll_data() {
   document.getElementById('kpi-total').textContent      = _leads.length;
   document.getElementById('kpi-days').textContent       = `${stats.dates.length} scout run${stats.dates.length !== 1 ? 's' : ''}`;
   document.getElementById('kpi-high').textContent       = stats.pc.High;
-  document.getElementById('kpi-ready').textContent      = stats.queueCounts.Ready;
+  const _emailQ = _leads.filter(l => l.email && !['Email Sent','Contacted','Responded','Meeting Booked','Not Relevant'].includes(l.status));
+  document.getElementById('kpi-ready').textContent      = _emailQ.length;
   document.getElementById('kpi-contacted').textContent  = stats.contacted;
   document.getElementById('kpi-responded').textContent  = `${stats.responded} responded`;
   document.getElementById('kpi-meetings').textContent   = stats.meetings;
@@ -966,13 +921,12 @@ function renderAll_data() {
 
   renderPipeline(stats.sc, _leads.length);
   renderCharts(stats);
-  renderSectorChips();
-  renderQualified();
-  renderContactNeeded();
-  renderRecent();
-  renderContracted();
+  renderEmailQueue();
+  renderPhoneQueue();
+  renderOutreach();
+  renderResponded();
+  renderResearch();
   renderNotRelevant();
-  renderAll();
 }
 
 // ── Pipeline status ────────────────────────────────────────────────────────
@@ -1632,48 +1586,66 @@ async function updateStatus(id, newStatus, notes) {
 }
 
 // ── Render sections ────────────────────────────────────────────────────────
-function renderQualified() {
-  const leads = _leads.filter(l => l.priority === 'High' && l.enrichmentQueue === 'Ready' && l.status !== 'Not Relevant');
-  document.getElementById('qualified-count-badge').textContent = leads.length;
-  document.getElementById('qualified-container').innerHTML = leads.length
-    ? leads.slice(0,20).map(leadCard).join('')
-    : '<div class="empty">No qualified leads.</div>';
+const _ACTIONED = ['Email Sent','Contacted','Responded','Meeting Booked','Not Relevant'];
+
+function _setTabCount(id, n) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = n ? `(${n})` : '';
 }
 
-function renderContactNeeded() {
-  const leads = _leads.filter(l => l.priority === 'High' && l.enrichmentQueue === 'Research' && l.status !== 'Not Relevant');
-  document.getElementById('contact-needed-container').innerHTML = leads.length
-    ? leads.slice(0,20).map(leadCard).join('')
-    : '<div class="empty">No leads need contact info right now.</div>';
+function renderEmailQueue() {
+  const leads = _leads.filter(l => l.email && !_ACTIONED.includes(l.status))
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  _setTabCount('tab-count-email-queue', leads.length);
+  const badge = document.getElementById('email-queue-count-badge');
+  if (badge) badge.textContent = leads.length;
+  document.getElementById('email-queue-container').innerHTML = leads.length
+    ? leads.slice(0,30).map(leadCard).join('')
+    : '<div class="empty">No leads ready to email.</div>';
 }
 
-function renderRecent() {
-  const leads = [..._leads]
-    .filter(l => l.scout_date && l.status !== 'Not Relevant')
-    .sort((a,b) => (b.scout_date > a.scout_date ? 1 : b.scout_date < a.scout_date ? -1 : (b.score||0) - (a.score||0)))
-    .slice(0,20);
-  document.getElementById('recent-container').innerHTML = leads.length
-    ? `<table class="lead-table"><thead><tr>
-        <th>Company</th><th>Priority</th><th>Score</th><th>Status</th><th>Sector</th><th>Postcode</th><th>Scout Date</th>
-      </tr></thead><tbody>
-      ${leads.map(l => `<tr>
-        <td><span class="company-link">${esc(l.company||'—')}</span></td>
-        <td>${priorityBadge(l.priority)}</td>
-        <td><span class="${scoreClass(l.score)}" style="font-weight:700">${l.score||'—'}</span></td>
-        <td>${statusBadge(l.status)}</td>
-        <td style="color:var(--muted)">${esc(l.sector||'—')}</td>
-        <td style="color:var(--muted)">${esc(l.postcode||'—')}</td>
-        <td style="color:var(--muted)">${esc(l.scout_date||'—')}</td>
-      </tr>`).join('')}
-      </tbody></table>`
-    : '<div class="empty">No recent leads.</div>';
+function renderPhoneQueue() {
+  const leads = _leads.filter(l => !l.email && l.phone && !_ACTIONED.includes(l.status))
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  _setTabCount('tab-count-phone-queue', leads.length);
+  const badge = document.getElementById('phone-queue-count-badge');
+  if (badge) badge.textContent = leads.length;
+  document.getElementById('phone-queue-container').innerHTML = leads.length
+    ? leads.slice(0,30).map(leadCard).join('')
+    : '<div class="empty">No phone-only leads in queue.</div>';
 }
 
-function renderContracted() {
-  const leads = _leads.filter(l => ['contracted','customer','won','closed won'].includes((l.status||'').toLowerCase()));
-  document.getElementById('contracted-container').innerHTML = leads.length
+function renderOutreach() {
+  const leads = _leads.filter(l => ['Email Sent','Contacted'].includes(l.status))
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  _setTabCount('tab-count-outreach', leads.length);
+  const badge = document.getElementById('outreach-count-badge');
+  if (badge) badge.textContent = leads.length;
+  document.getElementById('outreach-container').innerHTML = leads.length
     ? leads.map(leadCard).join('')
-    : '<div class="empty">No contracted customers yet.</div>';
+    : '<div class="empty">No outreach recorded yet.</div>';
+}
+
+function renderResponded() {
+  const leads = _leads.filter(l => ['Responded','Meeting Booked'].includes(l.status))
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  _setTabCount('tab-count-responded', leads.length);
+  const badge = document.getElementById('responded-count-badge');
+  if (badge) badge.textContent = leads.length;
+  document.getElementById('responded-container').innerHTML = leads.length
+    ? leads.map(leadCard).join('')
+    : '<div class="empty">No responses yet.</div>';
+}
+
+function renderResearch() {
+  const leads = _leads.filter(l => !l.email && !l.phone && l.status !== 'Not Relevant')
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  _setTabCount('tab-count-research', leads.length);
+  const badge = document.getElementById('research-count-badge');
+  if (badge) badge.textContent = leads.length;
+  document.getElementById('research-container').innerHTML = leads.length
+    ? leads.slice(0,30).map(leadCard).join('')
+    : '<div class="empty">No leads awaiting research.</div>';
 }
 
 function renderNotRelevant() {
@@ -1687,37 +1659,7 @@ function renderNotRelevant() {
     ? leads.map(leadCard).join('')
     : '<div class="empty">Nothing marked Not Relevant. Use the button on any lead to move it here.</div>';
 }
-
-function renderAll() {
-  syncFiltersToUrl();
-  const q  = (document.getElementById('search-input')?.value || '').toLowerCase();
-  const st = document.getElementById('all-status-filter')?.value || '';
-  const pr = document.getElementById('all-priority-filter')?.value || '';
-  const qu = document.getElementById('all-queue-filter')?.value || '';
-  const ch = document.getElementById('all-channel-filter')?.value || '';
-  const sec = _sectorFilter;
-  const sort = document.getElementById('all-sort')?.value || 'score';
-  const filtered = _leads.filter(l => {
-    const match = !q || [l.company, l.address, l.sector, l.postcode, l.director, l.flags, l.profile_status, l.reasoning, l.google_places]
-      .join(' ').toLowerCase().includes(q);
-    const notRelevantOk = st === 'Not Relevant' || l.status !== 'Not Relevant';
-    return match
-      && notRelevantOk
-      && (!st || l.status === st)
-      && (!pr || l.priority === pr)
-      && (!qu || l.enrichmentQueue === qu)
-      && (!ch || l.channelQueue === ch)
-      && (!sec || l.sector === sec);
-  }).sort((a, b) => {
-    if (sort === 'date') return (b.scout_date || '').localeCompare(a.scout_date || '') || (b.score || 0) - (a.score || 0);
-    if (sort === 'company') return (a.company || '').localeCompare(b.company || '');
-    return (b.score || 0) - (a.score || 0);
-  });
-  document.getElementById('all-count').textContent = `${filtered.length} lead${filtered.length !== 1 ? 's' : ''}`;
-  document.getElementById('all-container').innerHTML = filtered.length
-    ? filtered.slice(0,50).map(leadCard).join('')
-    : '<div class="empty">No leads match your filters.</div>';
-}
+function renderAll() {} // stub — all-leads tab removed
 
 // ── Tab switching ──────────────────────────────────────────────────────────
 document.querySelectorAll('.tab-btn').forEach(btn => {

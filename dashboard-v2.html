@@ -568,9 +568,9 @@ a{color:inherit;text-decoration:none}
       <div class="sub">Score 75+</div>
     </div>
     <div class="stat-card">
-      <div class="label">Qualified &amp; Ready</div>
+      <div class="label">Email Queue</div>
       <div class="value num v2-amber" id="kpi-ready">—</div>
-      <div class="sub">Ready to contact</div>
+      <div class="sub">Has email, not yet sent</div>
     </div>
     <div class="stat-card">
       <div class="label">Contacted</div>
@@ -635,94 +635,52 @@ a{color:inherit;text-decoration:none}
 
   <!-- Tabs -->
   <nav class="tabs">
-    <button class="tab-btn active" data-tab="qualified">Qualified<span class="tab-count" id="tc-qualified">0</span></button>
-    <button class="tab-btn" data-tab="contact-needed">Contact needed<span class="tab-count" id="tc-contact-needed">0</span></button>
-    <button class="tab-btn" data-tab="recent">Recent<span class="tab-count" id="tc-recent">0</span></button>
-    <button class="tab-btn" data-tab="contracted">Contracted<span class="tab-count" id="tc-contracted">0</span></button>
-    <button class="tab-btn" data-tab="all">All leads<span class="tab-count" id="tc-all">0</span></button>
+    <button class="tab-btn active" data-tab="email-queue">Email Queue<span class="tab-count" id="tc-email-queue">0</span></button>
+    <button class="tab-btn" data-tab="phone-queue">Phone Queue<span class="tab-count" id="tc-phone-queue">0</span></button>
+    <button class="tab-btn" data-tab="outreach">Outreach<span class="tab-count" id="tc-outreach">0</span></button>
+    <button class="tab-btn" data-tab="responded">Responded<span class="tab-count" id="tc-responded">0</span></button>
+    <button class="tab-btn" data-tab="research">Research<span class="tab-count" id="tc-research">0</span></button>
     <button class="tab-btn" data-tab="not-relevant">Not relevant<span class="tab-count" id="tc-not-relevant">0</span></button>
   </nav>
 
-  <div id="tab-qualified" class="tab-pane active">
+  <div id="tab-email-queue" class="tab-pane active">
     <div class="section-header">
-      <h2 class="section-title">Qualified leads</h2>
-      <span class="section-meta">High priority and outreach ready, contact details on file</span>
+      <h2 class="section-title">Ready to email</h2>
+      <span class="section-meta">Email address on file, not yet contacted</span>
     </div>
-    <div class="lead-list" id="qualified-container"><div class="loading">Loading</div></div>
+    <div class="lead-list" id="email-queue-container"><div class="loading">Loading</div></div>
   </div>
 
-  <div id="tab-contact-needed" class="tab-pane">
+  <div id="tab-phone-queue" class="tab-pane">
     <div class="section-header">
-      <h2 class="section-title">Contact needed</h2>
-      <span class="section-meta">High priority leads, contact info still required</span>
+      <h2 class="section-title">Ready to phone</h2>
+      <span class="section-meta">Phone number on file, no email address</span>
     </div>
-    <div class="lead-list" id="contact-needed-container"><div class="loading">Loading</div></div>
+    <div class="lead-list" id="phone-queue-container"><div class="loading">Loading</div></div>
   </div>
 
-  <div id="tab-recent" class="tab-pane">
+  <div id="tab-outreach" class="tab-pane">
     <div class="section-header">
-      <h2 class="section-title">Recent leads</h2>
-      <span class="section-meta">Latest 20 across all scout runs</span>
+      <h2 class="section-title">Outreach in progress</h2>
+      <span class="section-meta">Email sent or call made, awaiting response</span>
     </div>
-    <div class="scroll-x">
-      <div id="recent-container"><div class="loading">Loading</div></div>
-    </div>
+    <div class="lead-list" id="outreach-container"><div class="loading">Loading</div></div>
   </div>
 
-  <div id="tab-contracted" class="tab-pane">
+  <div id="tab-responded" class="tab-pane">
     <div class="section-header">
-      <h2 class="section-title">Contracted</h2>
-      <span class="section-meta">Leads converted to customers</span>
+      <h2 class="section-title">Responded or meeting booked</h2>
+      <span class="section-meta">Lead has replied or a meeting is in the diary</span>
     </div>
-    <div class="lead-list" id="contracted-container"><div class="loading">Loading</div></div>
+    <div class="lead-list" id="responded-container"><div class="loading">Loading</div></div>
   </div>
 
-  <div id="tab-all" class="tab-pane">
-    <div class="chip-strip" id="sector-chip-strip">
-      <span class="chip-label">Sector</span>
-      <span class="chip active" data-sector="" onclick="setSectorFilter('')">All</span>
+  <div id="tab-research" class="tab-pane">
+    <div class="section-header">
+      <h2 class="section-title">Needs contact info</h2>
+      <span class="section-meta">No email or phone on file yet, needs research before outreach</span>
     </div>
-    <div class="toolbar">
-      <input type="text" id="search-input" placeholder="Search company, address, sector" oninput="renderAll()"/>
-      <select class="select" id="all-status-filter" onchange="renderAll()">
-        <option value="">All statuses</option>
-        <option value="New Lead">New Lead</option>
-        <option value="Contacted">Contacted</option>
-        <option value="Email Sent">Email Sent</option>
-        <option value="Responded">Responded</option>
-        <option value="Meeting Booked">Meeting Booked</option>
-        <option value="No Response">No Response</option>
-        <option value="Not Relevant">Not Relevant</option>
-      </select>
-      <select class="select" id="all-priority-filter" onchange="renderAll()">
-        <option value="">All priorities</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
-      </select>
-      <select class="select" id="all-queue-filter" onchange="renderAll()">
-        <option value="">All queues</option>
-        <option value="Ready">Ready</option>
-        <option value="Research">Research</option>
-        <option value="Insufficient">Needs Data</option>
-      </select>
-      <select class="select" id="all-sort" onchange="renderAll()">
-        <option value="score">Sort by score</option>
-        <option value="date">Sort by scout date</option>
-        <option value="company">Sort by company</option>
-      </select>
-      <span class="toolbar-count" id="all-count"></span>
-      <div class="views-wrap">
-        <button class="link-quiet" id="views-toggle" onclick="toggleViewsMenu()">Saved views</button>
-        <div class="views-menu" id="views-menu">
-          <div id="views-list"></div>
-          <div class="vm-divider"></div>
-          <div class="vm-save" onclick="saveCurrentView()">+ Save current view</div>
-        </div>
-      </div>
-      <button class="link-quiet" onclick="clearAllFilters()">Clear</button>
-    </div>
-    <div class="lead-list" id="all-container"><div class="loading">Loading</div></div>
+    <div class="lead-list" id="research-container"><div class="loading">Loading</div></div>
   </div>
 
   <div id="tab-not-relevant" class="tab-pane">
@@ -1072,7 +1030,8 @@ function renderAll_data() {
   document.getElementById('kpi-total').textContent        = _leads.length;
   document.getElementById('kpi-days').textContent         = `${stats.dates.length} scout run${stats.dates.length !== 1 ? 's' : ''}`;
   document.getElementById('kpi-high').textContent         = stats.pc.High;
-  document.getElementById('kpi-ready').textContent        = stats.queueCounts.Ready;
+  const _emailQ = _leads.filter(l => l.email && !['Email Sent','Contacted','Responded','Meeting Booked','Not Relevant'].includes(l.status));
+  document.getElementById('kpi-ready').textContent        = _emailQ.length;
   document.getElementById('kpi-contacted').textContent    = stats.contacted;
   document.getElementById('kpi-responded').textContent    = `${stats.responded} responded`;
   document.getElementById('kpi-meetings').textContent     = stats.meetings;
@@ -1094,33 +1053,31 @@ function renderAll_data() {
     document.getElementById('header-run').classList.remove('visible');
   }
 
-  const active     = _leads.filter(l => l.status !== 'Not Relevant');
-  const allReady   = active.filter(l => l.enrichmentQueue==='Ready');
-  const qLeads     = [...allReady.filter(l => l.priority==='High'), ...allReady.filter(l => l.priority!=='High')].slice(0,30);
-  const cnLeads = _leads.filter(l => l.priority==='High' && l.enrichmentQueue==='Research' && l.status!=='Not Relevant');
-  const reLeads = [..._leads].filter(l => l.scout_date && l.status!=='Not Relevant')
-    .sort((a,b)=>(b.scout_date||'').localeCompare(a.scout_date||'')||(b.score||0)-(a.score||0)).slice(0,20);
-  const ctLeads = _leads.filter(l => ['contracted','customer','won','closed won'].includes((l.status||'').toLowerCase()));
-  const nrLeads = _leads.filter(l => l.status==='Not Relevant');
-  setTabCount('tc-qualified',      allReady.length);
-  setTabCount('tc-contact-needed', cnLeads.length);
-  setTabCount('tc-recent',         reLeads.length);
-  setTabCount('tc-contracted',     ctLeads.length);
-  setTabCount('tc-all',            _leads.length);
-  setTabCount('tc-not-relevant',   nrLeads.length);
+  const _DONE    = ['Email Sent','Contacted','Responded','Meeting Booked','Not Relevant'];
+  const emailQ   = _leads.filter(l => l.email && !_DONE.includes(l.status));
+  const phoneQ   = _leads.filter(l => !l.email && l.phone && !_DONE.includes(l.status));
+  const outreach = _leads.filter(l => ['Email Sent','Contacted'].includes(l.status));
+  const responded= _leads.filter(l => ['Responded','Meeting Booked'].includes(l.status));
+  const research = _leads.filter(l => !l.email && !l.phone && l.status !== 'Not Relevant');
+  const nrLeads  = _leads.filter(l => l.status === 'Not Relevant');
+  setTabCount('tc-email-queue', emailQ.length);
+  setTabCount('tc-phone-queue', phoneQ.length);
+  setTabCount('tc-outreach',    outreach.length);
+  setTabCount('tc-responded',   responded.length);
+  setTabCount('tc-research',    research.length);
+  setTabCount('tc-not-relevant',nrLeads.length);
 
   _stats = stats;
   if (document.getElementById('analytics-body').classList.contains('open')) {
     renderPipeline(stats.sc);
     renderCharts(stats);
   }
-  renderSectorChips();
-  renderQualified();
-  renderContactNeeded();
-  renderRecent();
-  renderContracted();
+  renderEmailQueue();
+  renderPhoneQueue();
+  renderOutreach();
+  renderResponded();
+  renderResearch();
   renderNotRelevant();
-  renderAll();
 }
 
 // === Pipeline ============================================================
@@ -1737,47 +1694,42 @@ async function updateStatus(id, newStatus, notes) {
 }
 
 // === Render sections =====================================================
-function renderQualified() {
-  const active = _leads.filter(l => l.status !== 'Not Relevant');
-  const high   = active.filter(l => l.priority === 'High' && l.enrichmentQueue === 'Ready').sort((a,b) => (b.score||0)-(a.score||0));
-  const ready  = active.filter(l => l.priority !== 'High' && l.enrichmentQueue === 'Ready').sort((a,b) => (b.score||0)-(a.score||0));
-  const leads  = [...high, ...ready].slice(0, 30);
-  document.getElementById('qualified-container').innerHTML = leads.length
+const _ACTIONED = ['Email Sent','Contacted','Responded','Meeting Booked','Not Relevant'];
+
+function renderEmailQueue() {
+  const leads = _leads.filter(l => l.email && !_ACTIONED.includes(l.status))
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  document.getElementById('email-queue-container').innerHTML = leads.length
+    ? leads.slice(0,30).map(leadCard).join('')
+    : '<div class="empty">No leads ready to email.</div>';
+}
+function renderPhoneQueue() {
+  const leads = _leads.filter(l => !l.email && l.phone && !_ACTIONED.includes(l.status))
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  document.getElementById('phone-queue-container').innerHTML = leads.length
+    ? leads.slice(0,30).map(leadCard).join('')
+    : '<div class="empty">No phone-only leads in queue.</div>';
+}
+function renderOutreach() {
+  const leads = _leads.filter(l => ['Email Sent','Contacted'].includes(l.status))
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  document.getElementById('outreach-container').innerHTML = leads.length
     ? leads.map(leadCard).join('')
-    : '<div class="empty">No qualified leads yet.</div>';
+    : '<div class="empty">No outreach recorded yet.</div>';
 }
-function renderContactNeeded() {
-  const leads = _leads.filter(l => l.priority==='High' && l.enrichmentQueue==='Research' && l.status!=='Not Relevant');
-  document.getElementById('contact-needed-container').innerHTML = leads.length
-    ? leads.slice(0,20).map(leadCard).join('')
-    : '<div class="empty">No leads need contact info right now.</div>';
-}
-function renderRecent() {
-  const leads = [..._leads]
-    .filter(l => l.scout_date && l.status!=='Not Relevant')
-    .sort((a,b) => (b.scout_date>a.scout_date?1:b.scout_date<a.scout_date?-1:0)||(b.score||0)-(a.score||0))
-    .slice(0,20);
-  document.getElementById('recent-container').innerHTML = leads.length
-    ? `<table class="lead-table"><thead><tr>
-        <th>Company</th><th>Priority</th><th>Score</th><th>Status</th><th>Sector</th><th>Postcode</th><th>Scout date</th>
-      </tr></thead><tbody>
-      ${leads.map(l => `<tr>
-        <td>${esc(l.company||'Unknown')}</td>
-        <td>${priorityBadge(l.priority)}</td>
-        <td>${l.score ? scoreBar(l.score) : '—'}</td>
-        <td>${statusBadge(l.status)}</td>
-        <td>${esc(l.sector||'—')}</td>
-        <td>${esc(l.postcode||'—')}</td>
-        <td>${esc(l.scout_date||'—')}</td>
-      </tr>`).join('')}
-      </tbody></table>`
-    : '<div class="empty">No recent leads.</div>';
-}
-function renderContracted() {
-  const leads = _leads.filter(l => ['contracted','customer','won','closed won'].includes((l.status||'').toLowerCase()));
-  document.getElementById('contracted-container').innerHTML = leads.length
+function renderResponded() {
+  const leads = _leads.filter(l => ['Responded','Meeting Booked'].includes(l.status))
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  document.getElementById('responded-container').innerHTML = leads.length
     ? leads.map(leadCard).join('')
-    : '<div class="empty">No contracted customers yet.</div>';
+    : '<div class="empty">No responses yet.</div>';
+}
+function renderResearch() {
+  const leads = _leads.filter(l => !l.email && !l.phone && l.status !== 'Not Relevant')
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  document.getElementById('research-container').innerHTML = leads.length
+    ? leads.slice(0,30).map(leadCard).join('')
+    : '<div class="empty">No leads awaiting research.</div>';
 }
 function renderNotRelevant() {
   const leads = _leads.filter(l => l.status==='Not Relevant').sort((a,b)=>(b.score||0)-(a.score||0));
@@ -1785,33 +1737,7 @@ function renderNotRelevant() {
     ? leads.map(leadCard).join('')
     : '<div class="empty">Nothing marked not relevant. Use the button on any lead to move it here.</div>';
 }
-function renderAll() {
-  syncFiltersToUrl();
-  const q   = (document.getElementById('search-input')?.value||'').toLowerCase();
-  const st  = document.getElementById('all-status-filter')?.value||'';
-  const pr  = document.getElementById('all-priority-filter')?.value||'';
-  const qu  = document.getElementById('all-queue-filter')?.value||'';
-  const sec = _sectorFilter;
-  const sort= document.getElementById('all-sort')?.value||'score';
-  const filtered = _leads.filter(l => {
-    const match = !q || [l.company,l.address,l.sector,l.postcode,l.director,l.flags,l.profile_status,l.reasoning,l.google_places]
-      .join(' ').toLowerCase().includes(q);
-    const notRelOk = st==='Not Relevant' || l.status!=='Not Relevant';
-    return match && notRelOk
-      && (!st  || l.status===st)
-      && (!pr  || l.priority===pr)
-      && (!qu  || l.enrichmentQueue===qu)
-      && (!sec || l.sector===sec);
-  }).sort((a,b) => {
-    if (sort==='date')    return (b.scout_date||'').localeCompare(a.scout_date||'')||(b.score||0)-(a.score||0);
-    if (sort==='company') return (a.company||'').localeCompare(b.company||'');
-    return (b.score||0)-(a.score||0);
-  });
-  document.getElementById('all-count').textContent = `${filtered.length} lead${filtered.length!==1?'s':''}`;
-  document.getElementById('all-container').innerHTML = filtered.length
-    ? filtered.slice(0,50).map(leadCard).join('')
-    : '<div class="empty">No leads match your filters.</div>';
-}
+function renderAll() {} // stub — all-leads tab removed
 
 // === Tab switching =======================================================
 document.querySelectorAll('.tab-btn').forEach(btn => {
