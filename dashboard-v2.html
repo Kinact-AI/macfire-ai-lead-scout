@@ -429,13 +429,6 @@ a{color:inherit;text-decoration:none}
 .drawer h2{font-size:19px;font-weight:700;margin:0 0 10px;padding-right:48px;
   letter-spacing:-.03em;color:var(--ink)}
 .drawer-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
-.sv-frame{
-  width:100%;aspect-ratio:16/10;background:var(--surface-2);
-  border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;
-  margin-bottom:18px;display:flex;align-items:center;justify-content:center;
-}
-.sv-frame img{width:100%;height:100%;object-fit:cover}
-.sv-frame .empty{color:var(--faint);font-size:12px}
 .drawer-section{margin-bottom:16px;font-size:13px;line-height:1.55}
 .drawer-section h3{font-size:10px;color:var(--muted);text-transform:uppercase;
   letter-spacing:.08em;margin:0 0 8px;font-weight:700}
@@ -1203,10 +1196,6 @@ function openLeadDrawer(id) {
   const l = _leads.find(x => x.id === id);
   if (!l) return;
   trackEvent('lead_drawer_opened', compactLeadMeta(l));
-  const sv = l.streetview_url || l.street_view || '';
-  const svBlock = sv
-    ? `<div class="sv-frame"><img src="${esc(sv)}" alt="Street View" onerror="this.parentNode.innerHTML='<div class=&quot;empty&quot;>Street View unavailable</div>'"/></div>`
-    : '<div class="sv-frame"><div class="empty">No Street View available</div></div>';
   const row = (k,v) => v===null||v===undefined||v===''||v===false
     ? '' : `<div class="row"><span class="k">${esc(k)}</span><span class="v">${v}</span></div>`;
   const dlink = (url, label, evt='lead_external_link_opened') => url
@@ -1227,13 +1216,10 @@ function openLeadDrawer(id) {
       ${statusBadge(l.status)}
       ${l.sector ? `<span class="badge b-plain">${esc(l.sector)}</span>` : ''}
     </div>
-    ${svBlock}
     <div class="drawer-section">
       <h3>Location</h3>
       ${row('Address',esc(l.address||''))}
       ${row('Postcode',esc(l.postcode||''))}
-      ${row('Maps',dlink(l.maps_url,'Open in Google Maps','lead_maps_opened'))}
-      ${row('Street View',dlink(sv,'Full-size Street View','lead_street_view_opened'))}
       ${row('Google Places',esc(l.google_places||''))}
     </div>
     <div class="drawer-section">
@@ -1595,12 +1581,6 @@ function cancelDraft(id) {
 // === Lead card ===========================================================
 
 function leadCard(l) {
-  const maps = l.maps_url
-    ? `<a class="btn-sm" href="${esc(l.maps_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" data-analytics-event="lead_maps_opened" data-lead-id="${esc(l.id)}">Map</a>`
-    : '';
-  const sv = l.street_view
-    ? `<a class="btn-sm" href="${esc(l.street_view)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" data-analytics-event="lead_street_view_opened" data-lead-id="${esc(l.id)}">Street view</a>`
-    : '';
   const website = l.website
     ? `<a href="${esc(l.website)}" target="_blank" rel="noopener" style="color:var(--brand)" onclick="event.stopPropagation()" data-analytics-event="lead_website_opened" data-lead-id="${esc(l.id)}">${esc(l.website.replace(/^https?:\/\//,''))}</a>`
     : '';
@@ -1637,7 +1617,6 @@ function leadCard(l) {
     </div>
     ${l.flags ? `<div class="flags-text" title="${esc(l.flags)}">&#9873; ${esc(l.flags)}</div>` : ''}
     <div class="lead-actions" onclick="event.stopPropagation()">
-      ${maps}${sv}
       ${_emailDrafted.has(l.id) && l.status !== 'Email Sent'
         ? `<button class="btn-sm marksent-btn" onclick="markEmailSent('${l.id}')">&#10003; Mark as sent</button>
            <button class="btn-sm notrel-btn" onclick="cancelDraft('${l.id}')">Not sent</button>`
