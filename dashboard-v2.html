@@ -1048,7 +1048,7 @@ function computeStats(leads) {
     if (['contracted','customer','won','closed won'].includes((l.status||'').toLowerCase())) contracted++;
   });
   const queueCounts = {
-    Ready:        leads.filter(l => l.priority === 'High' && l.enrichmentQueue === 'Ready'        && l.status !== 'Not Relevant').length,
+    Ready:        leads.filter(l =>                          l.enrichmentQueue === 'Ready'        && l.status !== 'Not Relevant').length,
     Research:     leads.filter(l => l.priority === 'High' && l.enrichmentQueue === 'Research'     && l.status !== 'Not Relevant').length,
     Insufficient: leads.filter(l => l.priority === 'High' && l.enrichmentQueue === 'Insufficient' && l.status !== 'Not Relevant').length,
   };
@@ -1094,14 +1094,15 @@ function renderAll_data() {
     document.getElementById('header-run').classList.remove('visible');
   }
 
-  const active  = _leads.filter(l => l.status !== 'Not Relevant');
-  const qLeads  = [...active.filter(l => l.priority==='High' && l.enrichmentQueue==='Ready'), ...active.filter(l => l.priority!=='High' && l.enrichmentQueue==='Ready')].slice(0,30);
+  const active     = _leads.filter(l => l.status !== 'Not Relevant');
+  const allReady   = active.filter(l => l.enrichmentQueue==='Ready');
+  const qLeads     = [...allReady.filter(l => l.priority==='High'), ...allReady.filter(l => l.priority!=='High')].slice(0,30);
   const cnLeads = _leads.filter(l => l.priority==='High' && l.enrichmentQueue==='Research' && l.status!=='Not Relevant');
   const reLeads = [..._leads].filter(l => l.scout_date && l.status!=='Not Relevant')
     .sort((a,b)=>(b.scout_date||'').localeCompare(a.scout_date||'')||(b.score||0)-(a.score||0)).slice(0,20);
   const ctLeads = _leads.filter(l => ['contracted','customer','won','closed won'].includes((l.status||'').toLowerCase()));
   const nrLeads = _leads.filter(l => l.status==='Not Relevant');
-  setTabCount('tc-qualified',      qLeads.length);
+  setTabCount('tc-qualified',      allReady.length);
   setTabCount('tc-contact-needed', cnLeads.length);
   setTabCount('tc-recent',         reLeads.length);
   setTabCount('tc-contracted',     ctLeads.length);
