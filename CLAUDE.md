@@ -51,6 +51,23 @@ that is why. Ask for the local workspace or work against Supabase directly.
 - This is a public repo. **Never check in secrets.** `config.js` ships
   with the Supabase anon key only; the service-role key belongs in the
   `macfire-production` repo's GitHub Actions secrets.
+- Outreach email templates are embedded in both dashboard copies:
+  `index.html` and `dashboard-v2.html`, in the `EMAIL_TEMPLATES` object.
+  They mirror the canonical Google Drive doc named
+  `MacFireOutreachEmailTemplates` (updated 24 June 2026), with final
+  sales-copy refinements agreed on 28 June 2026. Keep both dashboard
+  copies, `outreach-email-templates.md`, and
+  `outreach-template-preview.html` in sync when changing them.
+  The current approved approach is: warm, plain, credible, email-first,
+  no manual signature, no em dashes, no "Dougie" (use Douglas only if a
+  name is needed), and no claim that the premises is brand new. The
+  company is newly set up, but the business/premises may be an existing
+  place under new ownership. Use wording like "I saw [Company] has
+  recently been set up" plus "Whether this is a new site or an existing
+  place under new ownership..." where that nuance matters. If working
+  from Jonathan's local `MacFire Production` workspace, also check any
+  root-level `gh_pages_dashboard.html` snapshot, because older snapshots
+  may still build drafts from Supabase's stale `email_draft` field.
 - After any meaningful change to `index.html`, push to `main` (GH Pages
   picks it up automatically), then update the macfire-projects-dashboard
   data file with a plain-English line in `recentWins`.

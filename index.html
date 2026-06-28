@@ -1415,90 +1415,72 @@ function leadCard(l) {
 
 // ── Outreach email pre-fill (Outlook, no inbox access) ─────────────────────
 // Templates mirror the approved Google Doc copy. Tokens filled client-side.
-// Nothing is sent on Dougie's behalf: this only opens a pre-filled compose.
+// Nothing is sent on Douglas's behalf: this only opens a pre-filled compose.
 const EMAIL_TEMPLATES = {
   takeaway: {
     subject: 'Fire safety for [Company]: quick question',
     body:
 `Hi [Name],
 
-Congratulations on the new venture. I spotted that [Company] recently registered in your area, and as someone who has looked after fire safety for food businesses across Scotland for over twenty years, I always like to reach out early.
+I saw [Company] has recently been set up and thought it was worth getting in touch early.
 
-Getting the right kit in place from the start is a lot simpler than catching up later, and it means one less thing on your list as you get the doors open.
+I have looked after fire safety for food businesses across Scotland for over twenty years. Whether you are opening from scratch or taking over an existing place, it is usually easier to review the basics early than to catch up once staff, customers and insurers are already involved.
 
-If you have not sorted your fire extinguishers, emergency lighting, or annual service yet, I would be happy to give you a quick quote. No obligation, just want to make sure you are covered properly.
+If you have not reviewed your fire extinguishers, emergency lighting or annual service yet, I would be happy to give you a quick steer or quote. No obligation, just practical advice so you know what normally needs checked.
 
-Happy to answer by email, or we can talk it through on a quick five-minute call. Whatever suits you best.
-
-Best,
-Dougie
-MacFire Fire Protection`
+If useful, reply with where you are up to and I can point you in the right direction. Happy to do that by email, or we can have a quick call if easier.`
   },
   hotel: {
     subject: 'Fire protection for [Company]',
     body:
 `Hi [Name],
 
-I came across [Company] and wanted to get in touch. We specialise in fire safety for hospitality businesses across Scotland, and with a new registration on record I thought it was worth a quick hello.
+I saw [Company] has recently been set up and thought it was worth getting in touch. We specialise in fire safety for hospitality and guest accommodation businesses across Scotland.
 
-Compliance requirements for overnight accommodation are specific, and getting the right advice early saves a lot of time and expense down the line.
+The requirements for overnight accommodation can be more specific than people expect, especially around risk assessments, extinguishers, servicing and the annual checks insurers will want to see.
 
-We handle everything: risk assessments, extinguishers, servicing and the annual checks your insurer will want to see. One point of contact, no jargon.
+Whether this is a new site or an existing place under new ownership, getting the right advice early normally saves time and cost later. We keep it straightforward: one point of contact, no jargon, and a clear view of what needs done.
 
-If you are still putting things in place, I would be glad to help. Reply here if that is easier, or we can have a quick five-minute call, whichever works for you.
-
-Best,
-Dougie
-MacFire Fire Protection`
+If you are still putting things in place, I would be glad to help. Reply with where you are up to and I can let you know what normally needs checked. Happy to do that by email, or we can have a quick call if easier.`
   },
   hall: {
     subject: 'Fire safety checks for [Company]',
     body:
 `Hi [Name],
 
-I noticed [Company] has recently registered and wanted to make contact. We look after fire safety for community venues, church halls and meeting spaces across Scotland, and it is an area where compliance requirements can catch people out if they are not on top of them.
+I saw [Company] has recently been set up and wanted to make contact. We look after fire safety for community venues, church halls and meeting spaces across Scotland.
 
-If you are opening a new venue or taking on an existing one, the key things to have in place are a current fire risk assessment, the right extinguishers for the space, and a service plan to keep everything up to date.
+These spaces often have changing users, volunteers, bookings and public access, so it is worth getting the basics clear early: a current fire risk assessment, the right extinguishers for the space, and a service plan to keep everything up to date.
 
-Happy to run through what you need at no charge, so you know exactly where you stand before you open the doors.
+Happy to run through what you normally need at no charge, so you know exactly where you stand before opening, reopening or taking on new bookings.
 
-Happy to answer any questions by email, or run through it on a quick five-minute call. Whichever is easier for you.
-
-Best,
-Dougie
-MacFire Fire Protection`
+If useful, reply with where you are up to and I can point you in the right direction. Happy to do that by email, or we can have a quick call if easier.`
   },
   leisure: {
     subject: 'Fire protection for [Company]',
     body:
 `Hi [Name],
 
-Congratulations on the new registration. We work with leisure and entertainment businesses across Scotland on fire safety, and I always like to reach out when I see a new venue coming through.
+I saw [Company] has recently been set up and thought it was worth getting in touch early.
 
-With a space that will have members of the public through the door regularly, it is worth making sure your fire protection is right from the start. We cover everything from extinguishers and emergency lighting through to annual inspections and staff training.
+We work with leisure and entertainment businesses across Scotland. Whether the venue is brand new or an existing place under new ownership, it is worth checking the basics before things get busy.
 
-If you have not sorted this yet, I can get you a quote quickly. No pressure, just want to make sure you are in good shape.
+We can help with extinguishers, emergency lighting, annual inspections and staff training, and give you a clear steer on what is actually needed.
 
-Happy to answer by email, or we can talk it through on a quick five-minute call. Whatever suits you best.
-
-Best,
-Dougie
-MacFire Fire Protection`
+If you have not reviewed this yet, I can get you a quote quickly. No pressure. If useful, reply with where you are up to and I can point you in the right direction, or we can have a quick call if easier.`
   },
   general: {
     subject: 'Fire safety: quick note for [Company]',
     body:
 `Hi [Name],
 
-I noticed [Company] has recently come up on my radar and wanted to make contact. We work with businesses across Scotland on fire safety, from annual servicing through to full risk assessments, and we are used to stepping in when things have not been kept up to date.
+I saw [Company] has recently been set up and thought it was worth getting in touch early.
 
-If you would like a quick overview of where things stand, I am happy to run through it with you. It would not take long and there is no commitment.
+We work with businesses across Scotland on fire safety, from annual servicing through to full risk assessments, and we are used to helping owners understand what needs done without making it more complicated than it has to be.
 
-Happy to answer by email, or we can go through it on a quick five-minute call. Whichever is easier.
+Whether this is a new site or an existing place under new ownership, it is usually easier to check the basics now than to deal with gaps later when staff, customers or insurers are already involved.
 
-Best,
-Dougie
-MacFire Fire Protection`
+If useful, reply with where you are up to and I can let you know what normally needs checked. Happy to do that by email, or we can have a quick call if easier.`
   }
 };
 
