@@ -610,7 +610,7 @@ a{color:inherit;text-decoration:none}
         <div id="pipeline-container"><div class="loading">Loading</div></div>
       </div>
       <div class="panel">
-        <h3>Priority split (high priority)</h3>
+        <h3>Priority split (all leads)</h3>
         <div class="chart-wrap"><canvas id="priorityChart"></canvas></div>
       </div>
     </div>
@@ -980,12 +980,14 @@ function computeStats(leads) {
   const sc     = { 'New Lead':0,'Contacted':0,'Email Sent':0,'Responded':0,'Meeting Booked':0,'No Response':0,'Not Relevant':0 };
   const scHigh = { 'New Lead':0,'Contacted':0,'Email Sent':0,'Responded':0,'Meeting Booked':0,'No Response':0,'Not Relevant':0 };
   const pc = { High:0, Medium:0, Low:0 };
+  const priorityAll = { High:0, Medium:0, Low:0 };
   const sectors = {};
   const scores  = { '90-100':0,'75-89':0,'60-74':0,'50-59':0,'<50':0 };
   let contacted=0, responded=0, meetings=0, contracted=0;
   leads.forEach(l => {
     if (sc[l.status] !== undefined) sc[l.status]++;
     if (l.priority === 'High' && scHigh[l.status] !== undefined) scHigh[l.status]++;
+    if (priorityAll[l.priority] !== undefined) priorityAll[l.priority]++;
     const scr = l.score || 0;
     if (scr >= 90) scores['90-100']++;
     else if (scr >= 75) scores['75-89']++;
@@ -1013,7 +1015,7 @@ function computeStats(leads) {
   const todayLeads = lastDate ? leads.filter(l => l.scout_date === lastDate) : [];
   const todayPriority = { High:0, Medium:0, Low:0 };
   todayLeads.forEach(l => { if (todayPriority[l.priority] !== undefined) todayPriority[l.priority]++; });
-  return { sc, scHigh, pc, sectors, scores, contacted, responded, meetings, contracted,
+  return { sc, scHigh, pc, priorityAll, sectors, scores, contacted, responded, meetings, contracted,
     queueCounts, high, dates, lastDate, todayLeads, todayPriority };
 }
 
@@ -1105,7 +1107,7 @@ function renderCharts(stats) {
     data:{
       labels:['High','Medium','Low'],
       datasets:[{
-        data:[stats.pc.High, stats.pc.Medium, stats.pc.Low],
+        data:[stats.priorityAll.High, stats.priorityAll.Medium, stats.priorityAll.Low],
         backgroundColor:[C.brand, C.amber, C.neutral],
         borderWidth:3, borderColor:'#fff'
       }]
