@@ -365,6 +365,9 @@ a{color:inherit;text-decoration:none}
 .btn-sm.contacted-btn{border-color:rgba(245,158,11,.4);color:#FBBF24}
 .btn-sm.draft-btn{border-color:rgba(14,165,233,.45);color:#38BDF8}
 .btn-sm.marksent-btn{border-color:rgba(16,185,129,.5);color:#34D399;background:rgba(16,185,129,.12)}
+.btn-sm.responded-btn{border-color:rgba(139,92,246,.4);color:#C4B5FD}
+.btn-sm.meeting-btn{border-color:rgba(16,185,129,.35);color:rgba(74,222,128,.85)}
+.btn-sm.won-btn{border-color:rgba(16,185,129,.6);color:#34D399;background:rgba(16,185,129,.18);font-weight:600}
 .btn-sm.returnq-btn{border-color:rgba(99,102,241,.45);color:#A5B4FC}
 .btn-sm.notrel-btn{border-color:rgba(148,163,184,.3);color:var(--muted)}
 
@@ -630,6 +633,8 @@ a{color:inherit;text-decoration:none}
     <button class="tab-btn" data-tab="phone-queue">Phone Queue<span class="tab-count" id="tc-phone-queue">0</span></button>
     <button class="tab-btn" data-tab="outreach">Contacted<span class="tab-count" id="tc-outreach">0</span></button>
     <button class="tab-btn" data-tab="responded">Responded<span class="tab-count" id="tc-responded">0</span></button>
+    <button class="tab-btn" data-tab="meeting-booked">Meeting Booked<span class="tab-count" id="tc-meeting-booked">0</span></button>
+    <button class="tab-btn" data-tab="contracted">Contracted<span class="tab-count" id="tc-contracted">0</span></button>
     <button class="tab-btn" data-tab="research">Research<span class="tab-count" id="tc-research">0</span></button>
     <button class="tab-btn" data-tab="not-relevant">Not relevant<span class="tab-count" id="tc-not-relevant">0</span></button>
   </nav>
@@ -660,10 +665,26 @@ a{color:inherit;text-decoration:none}
 
   <div id="tab-responded" class="tab-pane">
     <div class="section-header">
-      <h2 class="section-title">Responded or meeting booked</h2>
-      <span class="section-meta">Lead has replied or a meeting is in the diary</span>
+      <h2 class="section-title">Responded</h2>
+      <span class="section-meta">Lead has replied, meeting not yet booked</span>
     </div>
     <div class="lead-list" id="responded-container"><div class="loading">Loading</div></div>
+  </div>
+
+  <div id="tab-meeting-booked" class="tab-pane">
+    <div class="section-header">
+      <h2 class="section-title">Meeting Booked</h2>
+      <span class="section-meta">Meeting in the diary, not yet contracted</span>
+    </div>
+    <div class="lead-list" id="meeting-booked-container"><div class="loading">Loading</div></div>
+  </div>
+
+  <div id="tab-contracted" class="tab-pane">
+    <div class="section-header">
+      <h2 class="section-title">Contracted</h2>
+      <span class="section-meta">Customer signed up</span>
+    </div>
+    <div class="lead-list" id="contracted-container"><div class="loading">Loading</div></div>
   </div>
 
   <div id="tab-research" class="tab-pane">
@@ -975,8 +996,8 @@ function enrichLead(l) {
 
 // === Stats ===============================================================
 function computeStats(leads) {
-  const sc     = { 'New Lead':0,'Contacted':0,'Email Sent':0,'Responded':0,'Meeting Booked':0,'No Response':0,'Not Relevant':0 };
-  const scHigh = { 'New Lead':0,'Contacted':0,'Email Sent':0,'Responded':0,'Meeting Booked':0,'No Response':0,'Not Relevant':0 };
+  const sc     = { 'New Lead':0,'Contacted':0,'Email Sent':0,'Responded':0,'Meeting Booked':0,'Contracted':0,'No Response':0,'Not Relevant':0 };
+  const scHigh = { 'New Lead':0,'Contacted':0,'Email Sent':0,'Responded':0,'Meeting Booked':0,'Contracted':0,'No Response':0,'Not Relevant':0 };
   const pc = { High:0, Medium:0, Low:0 };
   const priorityAll = { High:0, Medium:0, Low:0 };
   const sectors = {};
@@ -1027,8 +1048,8 @@ function renderAll_data() {
   document.getElementById('kpi-total').textContent        = _leads.length;
   document.getElementById('kpi-days').textContent         = `${stats.dates.length} scout run${stats.dates.length !== 1 ? 's' : ''}`;
   document.getElementById('kpi-high').textContent         = stats.pc.High;
-  const _eQ = _leads.filter(l => l.email && isValidEmail(l.email) && !['Email Sent','Contacted','Responded','Meeting Booked','Not Relevant'].includes(l.status));
-  const _pQ = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && l.phone && !['Email Sent','Contacted','Responded','Meeting Booked','Not Relevant'].includes(l.status));
+  const _eQ = _leads.filter(l => l.email && isValidEmail(l.email) && !['Email Sent','Contacted','Responded','Meeting Booked','Contracted','Not Relevant'].includes(l.status));
+  const _pQ = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && l.phone && !['Email Sent','Contacted','Responded','Meeting Booked','Contracted','Not Relevant'].includes(l.status));
   document.getElementById('kpi-ready').textContent        = _eQ.length + _pQ.length;
   document.getElementById('kpi-contacted').textContent    = stats.contacted;
   document.getElementById('kpi-responded').textContent    = `${stats.responded} responded`;
@@ -1051,19 +1072,23 @@ function renderAll_data() {
     document.getElementById('header-run').classList.remove('visible');
   }
 
-  const _DONE    = ['Email Sent','Contacted','Responded','Meeting Booked','Not Relevant'];
-  const emailQ   = _leads.filter(l => l.email && isValidEmail(l.email) && !_DONE.includes(l.status));
-  const phoneQ   = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && l.phone && !_DONE.includes(l.status));
-  const outreach = _leads.filter(l => ['Email Sent','Contacted'].includes(l.status));
-  const responded= _leads.filter(l => ['Responded','Meeting Booked'].includes(l.status));
-  const research = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && !l.phone && l.priority === 'High' && l.status !== 'Not Relevant');
-  const nrLeads  = _leads.filter(l => l.status === 'Not Relevant');
-  setTabCount('tc-email-queue', emailQ.length);
-  setTabCount('tc-phone-queue', phoneQ.length);
-  setTabCount('tc-outreach',    outreach.length);
-  setTabCount('tc-responded',   responded.length);
-  setTabCount('tc-research',    research.length);
-  setTabCount('tc-not-relevant',nrLeads.length);
+  const _DONE       = ['Email Sent','Contacted','Responded','Meeting Booked','Contracted','Not Relevant'];
+  const emailQ      = _leads.filter(l => l.email && isValidEmail(l.email) && !_DONE.includes(l.status));
+  const phoneQ      = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && l.phone && !_DONE.includes(l.status));
+  const outreach    = _leads.filter(l => ['Email Sent','Contacted'].includes(l.status));
+  const responded   = _leads.filter(l => l.status === 'Responded');
+  const meetingBooked = _leads.filter(l => l.status === 'Meeting Booked');
+  const contracted  = _leads.filter(l => l.status === 'Contracted');
+  const research    = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && !l.phone && l.priority === 'High' && l.status !== 'Not Relevant');
+  const nrLeads     = _leads.filter(l => l.status === 'Not Relevant');
+  setTabCount('tc-email-queue',   emailQ.length);
+  setTabCount('tc-phone-queue',   phoneQ.length);
+  setTabCount('tc-outreach',      outreach.length);
+  setTabCount('tc-responded',     responded.length);
+  setTabCount('tc-meeting-booked',meetingBooked.length);
+  setTabCount('tc-contracted',    contracted.length);
+  setTabCount('tc-research',      research.length);
+  setTabCount('tc-not-relevant',  nrLeads.length);
 
   _stats = stats;
   if (document.getElementById('analytics-body').classList.contains('open')) {
@@ -1074,6 +1099,8 @@ function renderAll_data() {
   renderPhoneQueue();
   renderOutreach();
   renderResponded();
+  renderMeetingBooked();
+  renderContracted();
   renderResearch();
   renderNotRelevant();
 }
@@ -1607,13 +1634,15 @@ function leadCard(l) {
       ${_emailDrafted.has(l.id) && l.status !== 'Email Sent'
         ? `<button class="btn-sm marksent-btn" onclick="markEmailSent('${l.id}')">&#10003; Mark as sent</button>
            <button class="btn-sm notrel-btn" onclick="cancelDraft('${l.id}')">Not sent</button>`
-        : `${['Contacted','Email Sent','Responded','Meeting Booked','Not Relevant'].includes(l.status) ? '' : l.email
+        : `${['Contacted','Email Sent','Responded','Meeting Booked','Contracted','Not Relevant'].includes(l.status) ? '' : l.email
             ? `<button class="btn-sm draft-btn" onclick="draftEmail('${l.id}')">Draft email</button>
                <button class="btn-sm" onclick="copyEmail('${l.id}')">Copy email</button>`
             : `<button class="btn-sm contacted-btn" onclick="updateStatus('${l.id}','Contacted')">Mark contacted</button>`}
-          ${['Meeting Booked','Not Relevant'].includes(l.status) ? '' : `<button class="btn-sm" onclick="updateStatus('${l.id}','Meeting Booked')">Meeting booked</button>`}
+          ${['Contacted','Email Sent'].includes(l.status) ? `<button class="btn-sm responded-btn" onclick="updateStatus('${l.id}','Responded')">Mark as Responded</button>` : ''}
+          ${['Contacted','Email Sent','Responded'].includes(l.status) ? `<button class="btn-sm meeting-btn" onclick="updateStatus('${l.id}','Meeting Booked')">Meeting booked</button>` : ''}
+          ${l.status === 'Meeting Booked' ? `<button class="btn-sm won-btn" onclick="updateStatus('${l.id}','Contracted')">Contracted</button>` : ''}
           ${l.status !== 'New Lead' ? `<button class="btn-sm returnq-btn" onclick="updateStatus('${l.id}','New Lead')">Return to queue</button>` : ''}
-          ${l.status === 'Not Relevant' ? '' : `<button class="btn-sm notrel-btn" onclick="markNotRelevant('${l.id}')">Not relevant</button>`}`}
+          ${['Not Relevant','Contracted'].includes(l.status) ? '' : `<button class="btn-sm notrel-btn" onclick="markNotRelevant('${l.id}')">Not relevant</button>`}`}
     </div>
   </article>`;
 }
@@ -1661,7 +1690,7 @@ async function updateStatus(id, newStatus, notes) {
 }
 
 // === Render sections =====================================================
-const _ACTIONED = ['Email Sent','Contacted','Responded','Meeting Booked','Not Relevant'];
+const _ACTIONED = ['Email Sent','Contacted','Responded','Meeting Booked','Contracted','Not Relevant'];
 
 const _BAD_DOMAINS = new Set(['email.com','domain.com','example.com','example.co.uk',
   'test.com','placeholder.com','noemail.com','noemail.co.uk','nodomain.com','none.com']);
@@ -1696,11 +1725,25 @@ function renderOutreach() {
     : '<div class="empty">No outreach recorded yet.</div>';
 }
 function renderResponded() {
-  const leads = _leads.filter(l => ['Responded','Meeting Booked'].includes(l.status))
+  const leads = _leads.filter(l => l.status === 'Responded')
     .sort((a,b) => (b.score||0)-(a.score||0));
   document.getElementById('responded-container').innerHTML = leads.length
     ? leads.map(leadCard).join('')
     : '<div class="empty">No responses yet.</div>';
+}
+function renderMeetingBooked() {
+  const leads = _leads.filter(l => l.status === 'Meeting Booked')
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  document.getElementById('meeting-booked-container').innerHTML = leads.length
+    ? leads.map(leadCard).join('')
+    : '<div class="empty">No meetings booked yet.</div>';
+}
+function renderContracted() {
+  const leads = _leads.filter(l => l.status === 'Contracted')
+    .sort((a,b) => (b.score||0)-(a.score||0));
+  document.getElementById('contracted-container').innerHTML = leads.length
+    ? leads.map(leadCard).join('')
+    : '<div class="empty">No contracted leads yet.</div>';
 }
 function renderResearch() {
   const leads = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && !l.phone && l.priority === 'High' && l.status !== 'Not Relevant')
