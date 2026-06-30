@@ -1560,6 +1560,43 @@ function buildEmail(l) {
 
 const _emailDrafted = new Set();
 
+// === Email quality detection ==============================================
+const AGENT_DOMAINS  = ['clydeoffices.com','companiesmadesimple.com','1stformations.com','formationshouse.com','simplesimple.co.uk','companywizard.co.uk'];
+const GENERIC_LOCALS = ['info','contact','admin','hello','enquiries','enquiry','office','mail','post','accounts','reception','general','support','team'];
+
+function isGenericEmail(email) {
+  if (!email) return false;
+  const [local, domain] = email.toLowerCase().split('@');
+  if (!domain) return false;
+  if (AGENT_DOMAINS.some(d => domain === d)) return 'agent';
+  if (GENERIC_LOCALS.includes(local)) return 'generic';
+  return false;
+}
+
+function emailWarningBadge(email) {
+  const kind = isGenericEmail(email);
+  if (kind === 'agent')   return ' <span style="font-size:10px;background:#FEF3C7;color:#92400E;border-radius:3px;padding:1px 5px;font-weight:600">Formation agent</span>';
+  if (kind === 'generic') return ' <span style="font-size:10px;background:#FEF3C7;color:#92400E;border-radius:3px;padding:1px 5px;font-weight:600">Generic address</span>';
+  return '';
+}
+
+async function markEmailBounced(id) {
+  if (!confirm('Mark as bounced? This clears the email address and returns the lead to the phone queue.')) return;
+  const cfg   = getConfig();
+  const table = cfg?.table || 'leads';
+  const btns  = document.querySelectorAll(`[data-id="${id}"] button`);
+  btns.forEach(b => b.disabled = true);
+  try {
+    const { error } = await _sb.from(table).update({ status: 'New Lead', email: null }).eq('id', id);
+    if (error) throw error;
+    _leads = _leads.map(l => l.id === id ? enrichLead({ ...l, status: 'New Lead', email: null }) : l);
+    renderAll_data();
+  } catch(e) {
+    console.error('Bounce update failed:', e);
+    btns.forEach(b => b.disabled = false);
+  }
+}
+
 function draftEmail(id) {
   const l = _leads.find(x => x.id === id);
   if (!l || !l.email) return;
@@ -1625,7 +1662,7 @@ function leadCard(l) {
       ${l.director  ? `<div><strong>Director:</strong> ${esc(l.director)}</div>` : ''}
       ${l.address   ? `<div><strong>Address:</strong> ${esc(l.address)}</div>` : ''}
       ${l.phone     ? `<div><strong>Phone:</strong> ${esc(l.phone)}</div>` : ''}
-      ${email       ? `<div><strong>Email:</strong> ${email}</div>` : ''}
+      ${email       ? `<div><strong>Email:</strong> ${email}${emailWarningBadge(l.email)}</div>` : ''}
       ${website     ? `<div><strong>Website:</strong> ${website}${l.websiteConfidence ? ` <span style="font-size:10px;color:var(--muted)">(${esc(l.websiteConfidence)})</span>` : ''}</div>` : ''}
       ${l.incorporated ? `<div><strong>Incorporated:</strong> ${esc(l.incorporated)}</div>` : ''}
       ${l.google_places ? `<div><strong>Google:</strong> ${esc(l.google_places)}</div>` : ''}
@@ -1644,6 +1681,7 @@ function leadCard(l) {
                <button class="btn-sm" onclick="copyEmail('${l.id}')">Copy email</button>`
             : `<button class="btn-sm contacted-btn" onclick="updateStatus('${l.id}','Contacted')">Mark contacted</button>`}
           ${['Contacted','Email Sent'].includes(l.status) ? `<button class="btn-sm responded-btn" onclick="updateStatus('${l.id}','Responded')">Mark as Responded</button>` : ''}
+          ${l.status === 'Email Sent' ? `<button class="btn-sm notrel-btn" onclick="markEmailBounced('${l.id}')">Email Bounced</button>` : ''}
           ${['Contacted','Email Sent','Responded'].includes(l.status) ? `<button class="btn-sm meeting-btn" onclick="updateStatus('${l.id}','Meeting Booked')">Meeting booked</button>` : ''}
           ${l.status === 'Meeting Booked' ? `<button class="btn-sm won-btn" onclick="updateStatus('${l.id}','Contracted')">Contracted</button>` : ''}
           ${l.status !== 'New Lead' ? `<button class="btn-sm returnq-btn" onclick="updateStatus('${l.id}','New Lead')">Return to queue</button>` : ''}
