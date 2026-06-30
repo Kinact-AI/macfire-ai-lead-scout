@@ -217,6 +217,7 @@ a{color:inherit;text-decoration:none}
   margin-bottom:24px;scrollbar-width:none;
 }
 .tabs::-webkit-scrollbar{display:none}
+.tab-divider{width:1px;background:rgba(255,255,255,0.15);align-self:stretch;margin:8px 4px;flex-shrink:0}
 .tab-btn{
   background:none;border:none;border-bottom:2px solid transparent;
   color:var(--muted);font-size:13.5px;font-weight:550;padding:11px 18px;cursor:pointer;
@@ -635,6 +636,7 @@ a{color:inherit;text-decoration:none}
     <button class="tab-btn" data-tab="responded">Responded<span class="tab-count" id="tc-responded">0</span></button>
     <button class="tab-btn" data-tab="meeting-booked">Meeting Booked<span class="tab-count" id="tc-meeting-booked">0</span></button>
     <button class="tab-btn" data-tab="contracted">Contracted<span class="tab-count" id="tc-contracted">0</span></button>
+    <div class="tab-divider" aria-hidden="true"></div>
     <button class="tab-btn" data-tab="research">Research<span class="tab-count" id="tc-research">0</span></button>
     <button class="tab-btn" data-tab="not-relevant">Not relevant<span class="tab-count" id="tc-not-relevant">0</span></button>
   </nav>
