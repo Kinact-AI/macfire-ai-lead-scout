@@ -1109,7 +1109,7 @@ function renderAll_data() {
 
 // === Pipeline ============================================================
 function renderPipeline(sc) {
-  const rows = Object.entries(sc).filter(([k]) => k !== 'Email Sent');
+  const rows = Object.entries(sc).filter(([k]) => k !== 'Email Sent' && k !== 'No Response');
   const max = Math.max(...rows.map(([,v]) => v), 1);
   document.getElementById('pipeline-container').innerHTML =
     rows.map(([k,v]) => `
