@@ -2,7 +2,7 @@
 
 Source: canonical Google Drive doc `MacFireOutreachEmailTemplates`, updated 24 June 2026.
 
-Status: dashboard-approved copy refined on 28 June 2026 after sales review. The dashboard copies live in `index.html` and `dashboard-v2.html` inside the `EMAIL_TEMPLATES` object. The readable preview is `outreach-template-preview.html`.
+Status: dashboard-approved copy refined on 28 June 2026 after sales review. Beauty / Personal Care template added 2 July 2026 following Douglas MacGregor's sector review. The dashboard copies live in `index.html` and `dashboard-v2.html` inside the `EMAIL_TEMPLATES` object. The readable preview is `outreach-template-preview.html`.
 
 Rules:
 
@@ -68,6 +68,20 @@ We work with leisure and entertainment businesses across Scotland. Whether the v
 We can help with extinguishers, emergency lighting, fire alarms, annual inspections and staff training, and give you a clear steer on what is actually needed.
 
 If you have not reviewed this yet, I can get you a quote quickly. No pressure. If useful, reply with where you are up to and I can point you in the right direction, or we can have a quick call if easier.
+
+## Beauty / Hair / Personal Care
+
+Subject: Fire safety for [Company]
+
+Hi [Name],
+
+I saw [Company] has recently been registered and thought it was worth getting in touch.
+
+We work with hair salons, beauty businesses and personal care premises across Scotland. These spaces often hold flammable products and have members of the public in, so a current fire risk assessment and the right equipment are worth getting in place early.
+
+Whether this is a new site or an existing place under new ownership, it is usually easier to look at the basics now than to deal with it later once clients and staff are in. We can advise on extinguishers, emergency lighting, alarms and annual servicing, and make sure you have what insurers expect to see.
+
+If useful, reply with where you are up to and I can let you know what normally needs checked. Happy to do that by email, or we can have a quick call if easier.
 
 ## General Business
 

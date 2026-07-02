@@ -1603,6 +1603,19 @@ We can help with extinguishers, emergency lighting, fire alarms, annual inspecti
 
 If you have not reviewed this yet, I can get you a quote quickly. No pressure. If useful, reply with where you are up to and I can point you in the right direction, or we can have a quick call if easier.`
   },
+  beauty: {
+    subject: 'Fire safety for [Company]',
+    body:
+`Hi [Name],
+
+I saw [Company] has recently been registered and thought it was worth getting in touch.
+
+We work with hair salons, beauty businesses and personal care premises across Scotland. These spaces often hold flammable products and have members of the public in, so a current fire risk assessment and the right equipment are worth getting in place early.
+
+Whether this is a new site or an existing place under new ownership, it is usually easier to look at the basics now than to deal with it later once clients and staff are in. We can advise on extinguishers, emergency lighting, alarms and annual servicing, and make sure you have what insurers expect to see.
+
+If useful, reply with where you are up to and I can let you know what normally needs checked. Happy to do that by email, or we can have a quick call if easier.`
+  },
   general: {
     subject: 'Fire safety: quick note for [Company]',
     body:
@@ -1623,7 +1636,8 @@ function pickTemplateKey(sector, company, reasoning) {
   if (/takeaway|restaurant|food|cafe|café|catering|kitchen|bakery|chip|kebab|shawarma|pizza|burger|deli|bistro|brasserie|sushi|noodle|curry|grill|diner|canteen|eatery|buffet|sandwich|juice|smoothie|vegan|vegetarian/.test(s)) return 'takeaway';
   if (/hotel|b&b|bed and breakfast|guest|accommodation|inn|lodge/.test(s))           return 'hotel';
   if (/hall|community|church|venue|meeting|hospice|charity/.test(s))                  return 'hall';
-  if (/pool|gym|leisure|entertainment|club|sport|fitness|spa|salon/.test(s))          return 'leisure';
+  if (/pool|gym|leisure|entertainment|club|sport|fitness|spa/.test(s))               return 'leisure';
+  if (/personal care|beauty|hair|barber|tattoo|nail|salon/.test(s))                  return 'beauty';
   return 'general';
 }
 
