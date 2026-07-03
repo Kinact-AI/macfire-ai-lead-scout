@@ -1630,9 +1630,9 @@ If useful, reply with where you are up to and I can let you know what normally n
 
 function pickTemplateKey(sector, company, reasoning) {
   const s = ((sector || '') + ' ' + (company || '') + ' ' + (reasoning || '')).toLowerCase();
-  if (/takeaway|restaurant|food|cafe|café|catering|kitchen|bakery|chip|kebab|shawarma|pizza|burger|deli|bistro|brasserie|sushi|noodle|curry|grill|diner|canteen|eatery|buffet|sandwich|juice|smoothie|vegan|vegetarian/.test(s)) return 'takeaway';
+  if (/takeaway|restaurant|food|cafe|café|catering|kitchen|bakery|brewery|brewer|distillery|distiller|chip|kebab|shawarma|pizza|burger|deli|bistro|brasserie|sushi|noodle|curry|grill|diner|canteen|eatery|buffet|sandwich|juice|smoothie|vegan|vegetarian/.test(s)) return 'takeaway';
   if (/hotel|b&b|bed and breakfast|guest|accommodation|inn|lodge/.test(s))       return 'hotel';
-  if (/hall|community|church|venue|meeting|hospice|charity/.test(s))              return 'hall';
+  if (/hall|community|church|mosque|temple|synagogue|chapel|worship|parish|venue|meeting|hospice|charity/.test(s)) return 'hall';
   if (/pool|gym|leisure|entertainment|club|sport|fitness|spa/.test(s))            return 'leisure';
   if (/personal care|beauty|hair|barber|tattoo|nail|salon/.test(s))               return 'beauty';
   return 'general';
