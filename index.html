@@ -469,7 +469,7 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
       </div>
       <div class="toolbar">
         <input id="search-input" type="search" placeholder="Search all leads by company, postcode, sector, contact, notes..." oninput="handleSearchInput();">
-        <select id="all-sort" onchange="renderAll_data(); syncFiltersToUrl();">
+        <select id="all-sort" onchange="handleSortChange();">
           <option value="score">Score high to low</option>
           <option value="score-asc">Score low to high</option>
           <option value="company">Company A to Z</option>
@@ -1810,6 +1810,8 @@ function sortLeads(leads) {
 function filteredSortedLeads(leads) {
   return sortLeads(leads.filter(leadMatchesSearch));
 }
+const SEARCH_RESULT_LIMIT = 80;
+let searchRenderTimer = null;
 function activateTab(tab) {
   const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
   const pane = document.getElementById('tab-' + tab);
@@ -1820,9 +1822,28 @@ function activateTab(tab) {
   pane.classList.add('active');
 }
 function handleSearchInput() {
+  clearTimeout(searchRenderTimer);
+  if (!searchQuery()) {
+    renderAll_data();
+    syncFiltersToUrl();
+    activateTab('email-queue');
+    return;
+  }
+  activateTab('search-results');
+  searchRenderTimer = setTimeout(() => {
+    renderSearchResults();
+    syncFiltersToUrl();
+  }, 140);
+}
+function handleSortChange() {
+  if (searchQuery()) {
+    activateTab('search-results');
+    renderSearchResults();
+    syncFiltersToUrl();
+    return;
+  }
   renderAll_data();
   syncFiltersToUrl();
-  activateTab(searchQuery() ? 'search-results' : 'email-queue');
 }
 function emptyMessage(defaultText) {
   return searchQuery()
@@ -1887,11 +1908,14 @@ function renderContracted() {
 
 function renderSearchResults() {
   const leads = searchQuery() ? filteredSortedLeads(_leads) : [];
+  const visibleLeads = leads.slice(0, SEARCH_RESULT_LIMIT);
   _setTabCount('tab-count-search-results', leads.length);
   const badge = document.getElementById('search-results-count-badge');
   if (badge) badge.textContent = leads.length;
   document.getElementById('search-results-container').innerHTML = leads.length
-    ? leads.map(leadCard).join('')
+    ? visibleLeads.map(leadCard).join('') + (leads.length > visibleLeads.length
+        ? `<div class="empty">Showing first ${visibleLeads.length} of ${leads.length} matching leads. Add more search terms to narrow results.</div>`
+        : '')
     : searchQuery()
       ? '<div class="empty">No matching leads anywhere in the dashboard.</div>'
       : '<div class="empty">Search across all lead queues.</div>';
