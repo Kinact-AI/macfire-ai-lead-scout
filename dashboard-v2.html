@@ -1052,7 +1052,7 @@ function enrichLead(l) {
   const roleHint = [l.director, l.director_name, l.trigger, l.next_action,
     l.flags, l.owner_contact_role_needed, l.profile_status].join(' ').toLowerCase();
   if (/director|owner|founder|manager|head|contact/.test(roleHint)) ps += 15;
-  const hasContact = !!(l.phone||'').trim() || !!(l.email||'').trim();
+  const hasContact = !!(l.phone||'').trim() || hasUsableEmail(l);
   if (hasContact) ps += 20;
   let queue;
   if ((l.lead_state||'').toLowerCase() === 'sales_ready' && hasContact) queue = 'Ready';
@@ -1119,8 +1119,8 @@ function renderAll_data() {
   document.getElementById('kpi-total').textContent        = _leads.length;
   document.getElementById('kpi-days').textContent         = `${stats.dates.length} scout run${stats.dates.length !== 1 ? 's' : ''}`;
   document.getElementById('kpi-high').textContent         = stats.pc.High;
-  const _eQ = _leads.filter(l => l.email && isValidEmail(l.email) && !['Email Sent','Contacted','Responded','Contracted','Not Relevant'].includes(l.status));
-  const _pQ = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && l.phone && !['Email Sent','Contacted','Responded','Contracted','Not Relevant'].includes(l.status));
+  const _eQ = _leads.filter(l => hasUsableEmail(l) && !['Email Sent','Contacted','Responded','Contracted','Not Relevant'].includes(l.status));
+  const _pQ = _leads.filter(l => !hasUsableEmail(l) && l.phone && !['Email Sent','Contacted','Responded','Contracted','Not Relevant'].includes(l.status));
   document.getElementById('kpi-ready').textContent        = _eQ.length + _pQ.length;
   document.getElementById('kpi-contacted').textContent    = stats.contacted;
   document.getElementById('kpi-responded').textContent    = `${stats.responded} responded`;
@@ -1144,12 +1144,12 @@ function renderAll_data() {
   }
 
   const _DONE    = ['Email Sent','Contacted','Responded','Contracted','Not Relevant'];
-  const emailQ   = _leads.filter(l => l.email && isValidEmail(l.email) && !_DONE.includes(l.status));
-  const phoneQ   = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && l.phone && !_DONE.includes(l.status));
+  const emailQ   = _leads.filter(l => hasUsableEmail(l) && !_DONE.includes(l.status));
+  const phoneQ   = _leads.filter(l => !hasUsableEmail(l) && l.phone && !_DONE.includes(l.status));
   const outreach = _leads.filter(l => ['Email Sent','Contacted'].includes(l.status));
   const responded= _leads.filter(l => l.status === 'Responded');
   const contracted = _leads.filter(l => l.status === 'Contracted');
-  const research = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && !l.phone && l.priority === 'High' && l.status !== 'Not Relevant');
+  const research = _leads.filter(l => !hasUsableEmail(l) && !l.phone && l.priority === 'High' && l.status !== 'Not Relevant');
   const nrLeads  = _leads.filter(l => l.status === 'Not Relevant');
   setTabCount('tc-email-queue', emailQ.length);
   setTabCount('tc-phone-queue', phoneQ.length);
@@ -1277,6 +1277,7 @@ function statusBadge(s) {
     'Email Sent':    'b-sky',
     'Responded':     'b-ready',
     'Contracted':'b-purple',
+    'Email Bounced': 'b-plain',
     'No Response':   'b-plain',
     'Not Relevant':  'b-none'
   }[s] || 'b-plain';
@@ -1649,20 +1650,8 @@ function emailWarningBadge(email) {
 }
 
 async function markEmailBounced(id) {
-  if (!confirm('Mark as bounced? This clears the email address and returns the lead to the phone queue.')) return;
-  const cfg   = getConfig();
-  const table = cfg?.table || 'leads';
-  const btns  = document.querySelectorAll(`[data-id="${id}"] button`);
-  btns.forEach(b => b.disabled = true);
-  try {
-    const { error } = await _sb.from(table).update({ status: 'New Lead', email: null }).eq('id', id);
-    if (error) throw error;
-    _leads = _leads.map(l => l.id === id ? enrichLead({ ...l, status: 'New Lead', email: null }) : l);
-    renderAll_data();
-  } catch(e) {
-    console.error('Bounce update failed:', e);
-    btns.forEach(b => b.disabled = false);
-  }
+  if (!confirm('Mark as bounced? This will stop using the email and move the lead back into the phone or research queue.')) return;
+  await updateStatus(id, 'Email Bounced');
 }
 
 function draftEmail(id) {
@@ -1708,8 +1697,11 @@ function leadCard(l) {
   const website = l.website
     ? `<a href="${esc(l.website)}" target="_blank" rel="noopener" style="color:var(--brand)" onclick="event.stopPropagation()" data-analytics-event="lead_website_opened" data-lead-id="${esc(l.id)}">${esc(l.website.replace(/^https?:\/\//,''))}</a>`
     : '';
+  const bounced = emailIsBounced(l);
   const email = l.email
-    ? `<a href="mailto:${esc(l.email)}" style="color:var(--brand)" onclick="event.stopPropagation()" data-analytics-event="lead_email_clicked" data-lead-id="${esc(l.id)}">${esc(l.email)}</a>`
+    ? bounced
+      ? `<span style="color:var(--muted);text-decoration:line-through">${esc(l.email)}</span> <span class="badge b-plain">Bounced</span>`
+      : `<a href="mailto:${esc(l.email)}" style="color:var(--brand)" onclick="event.stopPropagation()" data-analytics-event="lead_email_clicked" data-lead-id="${esc(l.id)}">${esc(l.email)}</a>`
     : '';
   return `
   <article class="lead-card" id="lc-${l.id}" data-priority="${esc(l.priority||'')}" onclick="openLeadDrawer('${l.id}')">
@@ -1744,7 +1736,7 @@ function leadCard(l) {
       ${_emailDrafted.has(l.id) && l.status !== 'Email Sent'
         ? `<button class="btn-sm marksent-btn" onclick="markEmailSent('${l.id}')">&#10003; Mark as sent</button>
            <button class="btn-sm notrel-btn" onclick="cancelDraft('${l.id}')">Not sent</button>`
-        : `${['Contacted','Email Sent','Responded','Contracted','Not Relevant'].includes(l.status) ? '' : l.email
+        : `${['Contacted','Email Sent','Responded','Contracted','Not Relevant'].includes(l.status) ? '' : hasUsableEmail(l)
             ? `<button class="btn-sm draft-btn" onclick="draftEmail('${l.id}')">Draft email</button>
                <button class="btn-sm" onclick="copyEmail('${l.id}')">Copy email</button>`
             : `<button class="btn-sm contacted-btn" onclick="updateStatus('${l.id}','Contacted')">Mark contacted</button>`}
@@ -1805,6 +1797,9 @@ const _ACTIONED = ['Email Sent','Contacted','Responded','Contracted','Not Releva
 const _BAD_DOMAINS = new Set(['email.com','domain.com','example.com','example.co.uk',
   'test.com','placeholder.com','noemail.com','noemail.co.uk','nodomain.com','none.com']);
 const _BAD_LOCALS  = new Set(['you','user','noemail','no-email','noreply','no-reply','null','undefined']);
+function emailIsBounced(l) {
+  return l.status === 'Email Bounced';
+}
 function isValidEmail(e) {
   if (!e || !e.includes('@')) return false;
   const at = e.toLowerCase().lastIndexOf('@');
@@ -1812,16 +1807,19 @@ function isValidEmail(e) {
   const domain = e.slice(at + 1).toLowerCase();
   return !_BAD_DOMAINS.has(domain) && !_BAD_LOCALS.has(local);
 }
+function hasUsableEmail(l) {
+  return !!(l.email && isValidEmail(l.email) && !emailIsBounced(l));
+}
 
 function renderEmailQueue() {
-  const leads = _leads.filter(l => l.email && isValidEmail(l.email) && !_ACTIONED.includes(l.status))
+  const leads = _leads.filter(l => hasUsableEmail(l) && !_ACTIONED.includes(l.status))
     .sort((a,b) => (b.score||0)-(a.score||0));
   document.getElementById('email-queue-container').innerHTML = leads.length
     ? leads.slice(0,30).map(leadCard).join('')
     : '<div class="empty">No leads ready to email.</div>';
 }
 function renderPhoneQueue() {
-  const leads = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && l.phone && !_ACTIONED.includes(l.status))
+  const leads = _leads.filter(l => !hasUsableEmail(l) && l.phone && !_ACTIONED.includes(l.status))
     .sort((a,b) => (b.score||0)-(a.score||0));
   document.getElementById('phone-queue-container').innerHTML = leads.length
     ? leads.slice(0,30).map(leadCard).join('')
@@ -1849,7 +1847,7 @@ function renderContracted() {
     : '<div class="empty">No contracted leads yet.</div>';
 }
 function renderResearch() {
-  const leads = _leads.filter(l => (!l.email || !isValidEmail(l.email)) && !l.phone && l.priority === 'High' && l.status !== 'Not Relevant')
+  const leads = _leads.filter(l => !hasUsableEmail(l) && !l.phone && l.priority === 'High' && l.status !== 'Not Relevant')
     .sort((a,b) => (b.score||0)-(a.score||0));
   document.getElementById('research-container').innerHTML = leads.length
     ? leads.slice(0,30).map(leadCard).join('')
