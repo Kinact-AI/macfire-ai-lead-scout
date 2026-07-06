@@ -663,18 +663,6 @@ a{color:inherit;text-decoration:none}
     </div>
   </div>
 
-  <!-- Tabs -->
-  <nav class="tabs">
-    <button class="tab-btn active" data-tab="email-queue">Email Queue<span class="tab-count" id="tc-email-queue">0</span></button>
-    <button class="tab-btn" data-tab="phone-queue">Phone Queue<span class="tab-count" id="tc-phone-queue">0</span></button>
-    <button class="tab-btn" data-tab="outreach">Contacted<span class="tab-count" id="tc-outreach">0</span></button>
-    <button class="tab-btn" data-tab="responded">Responded<span class="tab-count" id="tc-responded">0</span></button>
-    <button class="tab-btn" data-tab="contracted">Contracted<span class="tab-count" id="tc-contracted">0</span></button>
-    <button class="tab-btn" data-tab="search-results">Search Results<span class="tab-count" id="tc-search-results">0</span></button>
-    <div class="tab-divider" aria-hidden="true"></div>
-    <button class="tab-btn" data-tab="research">Research<span class="tab-count" id="tc-research">0</span></button>
-    <button class="tab-btn" data-tab="not-relevant">Not relevant<span class="tab-count" id="tc-not-relevant">0</span></button>
-  </nav>
   <div class="toolbar">
     <input id="search-input" type="search" placeholder="Search all leads by company, postcode, sector, contact, notes..." oninput="handleSearchInput();">
     <select class="select" id="all-sort" onchange="handleSortChange();">
@@ -691,6 +679,18 @@ a{color:inherit;text-decoration:none}
     </select>
     <button class="link-quiet" onclick="clearAllFilters()">Clear</button>
   </div>
+  <!-- Tabs -->
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="email-queue">Email Queue<span class="tab-count" id="tc-email-queue">0</span></button>
+    <button class="tab-btn" data-tab="phone-queue">Phone Queue<span class="tab-count" id="tc-phone-queue">0</span></button>
+    <button class="tab-btn" data-tab="outreach">Contacted<span class="tab-count" id="tc-outreach">0</span></button>
+    <button class="tab-btn" data-tab="responded">Responded<span class="tab-count" id="tc-responded">0</span></button>
+    <button class="tab-btn" data-tab="contracted">Contracted<span class="tab-count" id="tc-contracted">0</span></button>
+    <button class="tab-btn" data-tab="search-results">Search Results<span class="tab-count" id="tc-search-results">0</span></button>
+    <div class="tab-divider" aria-hidden="true"></div>
+    <button class="tab-btn" data-tab="research">Research<span class="tab-count" id="tc-research">0</span></button>
+    <button class="tab-btn" data-tab="not-relevant">Not relevant<span class="tab-count" id="tc-not-relevant">0</span></button>
+  </nav>
 
   <div id="tab-email-queue" class="tab-pane active">
     <div class="section-header">

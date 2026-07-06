@@ -456,17 +456,6 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
 
     <!-- LEFT: tabbed lead views -->
     <div>
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="email-queue">Email Queue <span id="tab-count-email-queue" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
-        <button class="tab-btn" data-tab="phone-queue">Phone Queue <span id="tab-count-phone-queue" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
-        <button class="tab-btn" data-tab="outreach">Contacted <span id="tab-count-outreach" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
-        <button class="tab-btn" data-tab="responded">Responded <span id="tab-count-responded" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
-        <button class="tab-btn" data-tab="contracted">Contracted <span id="tab-count-contracted" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
-        <button class="tab-btn" data-tab="search-results">Search Results <span id="tab-count-search-results" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
-        <div class="tab-divider" aria-hidden="true"></div>
-        <button class="tab-btn" data-tab="research">Research <span id="tab-count-research" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
-        <button class="tab-btn" data-tab="not-relevant">Not Relevant <span id="tab-count-not-relevant" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
-      </div>
       <div class="toolbar">
         <input id="search-input" type="search" placeholder="Search all leads by company, postcode, sector, contact, notes..." oninput="handleSearchInput();">
         <select id="all-sort" onchange="handleSortChange();">
@@ -482,6 +471,17 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
           <option value="date-asc">Oldest scout date</option>
         </select>
         <button class="toolbar-btn" onclick="clearAllFilters()">Clear</button>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="email-queue">Email Queue <span id="tab-count-email-queue" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn" data-tab="phone-queue">Phone Queue <span id="tab-count-phone-queue" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn" data-tab="outreach">Contacted <span id="tab-count-outreach" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn" data-tab="responded">Responded <span id="tab-count-responded" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn" data-tab="contracted">Contracted <span id="tab-count-contracted" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn" data-tab="search-results">Search Results <span id="tab-count-search-results" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <div class="tab-divider" aria-hidden="true"></div>
+        <button class="tab-btn" data-tab="research">Research <span id="tab-count-research" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
+        <button class="tab-btn" data-tab="not-relevant">Not Relevant <span id="tab-count-not-relevant" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
       </div>
 
       <div class="tab-pane active" id="tab-email-queue">
