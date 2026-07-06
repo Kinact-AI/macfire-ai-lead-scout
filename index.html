@@ -1250,7 +1250,7 @@ function openLeadDrawer(id) {
     <div class="drawer-section">
       <h3>Contact &amp; Web</h3>
       ${row('Phone', esc(l.phone || l.phone_number || ''))}
-      ${row('Email', l.email || l.email_address ? `<a href="mailto:${esc(l.email || l.email_address)}" style="color:#818CF8" data-analytics-event="lead_email_clicked" data-lead-id="${esc(l.id)}">${esc(l.email || l.email_address)}</a>` : '')}
+      ${row('Email', renderEmailAddress(l, '#818CF8', 'badge-noresp'))}
       ${row('Website', websiteLine)}
       ${row('Page title', esc(l.web_title || ''))}
       ${row('H1', esc(l.web_h1 || ''))}
@@ -1480,12 +1480,7 @@ function leadCard(l) {
   const flags   = l.flags ? `<div class="flags-text" title="${esc(l.flags)}">⚑ ${esc(l.flags)}</div>` : '';
   const maps    = l.maps_url    ? `<a class="lead-link maps" href="${esc(l.maps_url)}" target="_blank" rel="noopener" data-analytics-event="lead_maps_opened" data-lead-id="${esc(l.id)}">📍 Maps</a>` : '';
   const sv      = l.street_view ? `<a class="lead-link" href="${esc(l.street_view)}" target="_blank" rel="noopener" data-analytics-event="lead_street_view_opened" data-lead-id="${esc(l.id)}">📷 Street</a>` : '';
-  const bounced = emailIsBounced(l);
-  const email   = l.email
-    ? bounced
-      ? `<span style="color:var(--muted);text-decoration:line-through">${esc(l.email)}</span> <span class="badge badge-noresp">Bounced</span>`
-      : `<a href="mailto:${esc(l.email)}" style="color:#818CF8" data-analytics-event="lead_email_clicked" data-lead-id="${esc(l.id)}">${esc(l.email)}</a>`
-    : '';
+  const email   = renderEmailAddress(l, '#818CF8', 'badge-noresp');
   const phone   = l.phone ? esc(l.phone) : '';
   const website = l.website ? `<a href="${esc(l.website)}" target="_blank" rel="noopener" style="color:#5DADE2" data-analytics-event="lead_website_opened" data-lead-id="${esc(l.id)}">${esc(l.website.replace(/^https?:\/\//,''))}</a>` : '';
   const conf = [l.premises_confidence, l.operational_confidence, l.compliance_confidence, l.contactability_confidence]
@@ -1553,6 +1548,18 @@ function emailWarningBadge(email) {
   const domain = email.toLowerCase().split('@')[1] || '';
   if (AGENT_DOMAINS.some(d => domain === d)) return ' <span style="font-size:10px;background:#FEF3C7;color:#92400E;border-radius:3px;padding:1px 5px;font-weight:600">Formation agent</span>';
   return '';
+}
+
+function renderEmailAddress(l, linkColor, badgeClass, stopPropagation = false) {
+  const email = l.email || l.email_address;
+  if (!email) return '';
+  const bounced = emailIsBounced(l);
+  const invalid = !isValidEmail(email);
+  if (bounced || invalid) {
+    return `<span style="color:var(--muted);text-decoration:line-through">${esc(email)}</span> <span class="badge ${badgeClass}">${bounced ? 'Bounced' : 'Invalid'}</span>`;
+  }
+  const stopClick = stopPropagation ? ' onclick="event.stopPropagation()"' : '';
+  return `<a href="mailto:${esc(email)}" style="color:${linkColor}"${stopClick} data-analytics-event="lead_email_clicked" data-lead-id="${esc(l.id)}">${esc(email)}</a>`;
 }
 
 async function markEmailBounced(id) {

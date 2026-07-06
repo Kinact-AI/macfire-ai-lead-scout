@@ -1373,9 +1373,7 @@ function openLeadDrawer(id) {
     <div class="drawer-section">
       <h3>Contact and Web</h3>
       ${row('Phone',esc(l.phone||l.phone_number||''))}
-      ${row('Email',(l.email||l.email_address)
-        ?`<a href="mailto:${esc(l.email||l.email_address)}" style="color:var(--brand)" data-analytics-event="lead_email_clicked" data-lead-id="${esc(l.id)}">${esc(l.email||l.email_address)}</a>`
-        :'')}
+      ${row('Email',renderEmailAddress(l,'var(--brand)','b-plain'))}
       ${row('Website',websiteLine)}
       ${row('Page title',esc(l.web_title||''))}
       ${row('H1',esc(l.web_h1||''))}
@@ -1678,6 +1676,18 @@ function emailWarningBadge(email) {
   return '';
 }
 
+function renderEmailAddress(l, linkColor, badgeClass, stopPropagation = false) {
+  const email = l.email || l.email_address;
+  if (!email) return '';
+  const bounced = emailIsBounced(l);
+  const invalid = !isValidEmail(email);
+  if (bounced || invalid) {
+    return `<span style="color:var(--muted);text-decoration:line-through">${esc(email)}</span> <span class="badge ${badgeClass}">${bounced ? 'Bounced' : 'Invalid'}</span>`;
+  }
+  const stopClick = stopPropagation ? ' onclick="event.stopPropagation()"' : '';
+  return `<a href="mailto:${esc(email)}" style="color:${linkColor}"${stopClick} data-analytics-event="lead_email_clicked" data-lead-id="${esc(l.id)}">${esc(email)}</a>`;
+}
+
 async function markEmailBounced(id) {
   if (!confirm('Mark as bounced? This will stop using the email and move the lead back into the phone or research queue.')) return;
   await updateStatus(id, 'Email Bounced');
@@ -1726,12 +1736,7 @@ function leadCard(l) {
   const website = l.website
     ? `<a href="${esc(l.website)}" target="_blank" rel="noopener" style="color:var(--brand)" onclick="event.stopPropagation()" data-analytics-event="lead_website_opened" data-lead-id="${esc(l.id)}">${esc(l.website.replace(/^https?:\/\//,''))}</a>`
     : '';
-  const bounced = emailIsBounced(l);
-  const email = l.email
-    ? bounced
-      ? `<span style="color:var(--muted);text-decoration:line-through">${esc(l.email)}</span> <span class="badge b-plain">Bounced</span>`
-      : `<a href="mailto:${esc(l.email)}" style="color:var(--brand)" onclick="event.stopPropagation()" data-analytics-event="lead_email_clicked" data-lead-id="${esc(l.id)}">${esc(l.email)}</a>`
-    : '';
+  const email = renderEmailAddress(l,'var(--brand)','b-plain',true);
   return `
   <article class="lead-card" id="lc-${l.id}" data-priority="${esc(l.priority||'')}" onclick="openLeadDrawer('${l.id}')">
     <div class="lead-top">
