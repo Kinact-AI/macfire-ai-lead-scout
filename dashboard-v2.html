@@ -1271,13 +1271,13 @@ function priorityBadge(p) {
   return `<span class="badge b-plain">${p || 'Unknown'}</span>`;
 }
 function statusBadge(s) {
+  if (s === 'Email Bounced') return '';
   const cls = {
     'New Lead':      'b-indigo',
     'Contacted':     'b-attention',
     'Email Sent':    'b-sky',
     'Responded':     'b-ready',
     'Contracted':'b-purple',
-    'Email Bounced': 'b-plain',
     'No Response':   'b-plain',
     'Not Relevant':  'b-none'
   }[s] || 'b-plain';

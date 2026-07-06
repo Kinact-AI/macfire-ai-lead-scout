@@ -1133,9 +1133,10 @@ function priorityBadge(p) {
   return `<span class="badge ${cls}">${p||'-'}</span>`;
 }
 function statusBadge(s) {
+  if (s === 'Email Bounced') return '';
   const cls = {
     'New Lead':'badge-new','Contacted':'badge-contacted','Email Sent':'badge-emailed','Responded':'badge-responded',
-    'Contracted':'badge-meeting','Email Bounced':'badge-noresp','No Response':'badge-noresp','Not Relevant':'badge-notrel'
+    'Contracted':'badge-meeting','No Response':'badge-noresp','Not Relevant':'badge-notrel'
   }[s] || 'badge-low';
   return `<span class="badge ${cls}">${s||'-'}</span>`;
 }
