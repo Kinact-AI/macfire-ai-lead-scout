@@ -466,6 +466,22 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
         <button class="tab-btn" data-tab="research">Research <span id="tab-count-research" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
         <button class="tab-btn" data-tab="not-relevant">Not Relevant <span id="tab-count-not-relevant" style="color:var(--muted);font-size:11px;margin-left:4px"></span></button>
       </div>
+      <div class="toolbar">
+        <input id="search-input" type="search" placeholder="Search company, postcode, sector, contact, notes..." oninput="renderAll_data(); syncFiltersToUrl();">
+        <select id="all-sort" onchange="renderAll_data(); syncFiltersToUrl();">
+          <option value="score">Score high to low</option>
+          <option value="score-asc">Score low to high</option>
+          <option value="company">Company A to Z</option>
+          <option value="company-desc">Company Z to A</option>
+          <option value="sector">Sector A to Z</option>
+          <option value="postcode">Postcode A to Z</option>
+          <option value="priority">Priority</option>
+          <option value="status">Status</option>
+          <option value="date">Newest scout date</option>
+          <option value="date-asc">Oldest scout date</option>
+        </select>
+        <button class="toolbar-btn" onclick="clearAllFilters()">Clear</button>
+      </div>
 
       <div class="tab-pane active" id="tab-email-queue">
         <div class="section-header">
@@ -1278,7 +1294,8 @@ function setSectorFilter(sector) {
   document.querySelectorAll('#sector-chip-strip .chip').forEach(c => {
     c.classList.toggle('active', (c.dataset.sector || '') === _sectorFilter);
   });
-  renderAll();
+  renderAll_data();
+  syncFiltersToUrl();
 }
 
 function renderSectorChips() {
@@ -1344,7 +1361,8 @@ function clearAllFilters() {
   document.querySelectorAll('#sector-chip-strip .chip').forEach(c => {
     c.classList.toggle('active', !c.dataset.sector);
   });
-  renderAll();
+  renderAll_data();
+  syncFiltersToUrl();
 }
 
 // ── Saved views (localStorage) ───────────────────────────────────────────
@@ -1739,6 +1757,53 @@ function isValidEmail(e) {
 function hasUsableEmail(l) {
   return !!(l.email && isValidEmail(l.email) && !emailIsBounced(l));
 }
+function searchQuery() {
+  return (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+}
+function leadSearchText(l) {
+  return [
+    l.company, l.postcode, l.address, l.sector, l.status, l.priority, l.score,
+    l.director, l.director_name, l.phone, l.email, l.website, l.domain,
+    l.trigger, l.reasoning, l.reason, l.flags, l.relevance_notes,
+    l.google_places, l.company_status, l.profile_status, l.scout_date
+  ].filter(v => v !== null && v !== undefined && v !== '').join(' ').toLowerCase();
+}
+function leadMatchesSearch(l) {
+  const q = searchQuery();
+  if (!q) return true;
+  const text = leadSearchText(l);
+  return q.split(/\s+/).every(token => text.includes(token));
+}
+function priorityRank(p) {
+  return { High: 0, Medium: 1, Low: 2 }[p] ?? 3;
+}
+function compareText(a, b) {
+  return String(a || '').localeCompare(String(b || ''), undefined, { sensitivity: 'base', numeric: true });
+}
+function sortLeads(leads) {
+  const sort = document.getElementById('all-sort')?.value || 'score';
+  return [...leads].sort((a, b) => {
+    if (sort === 'score') return (b.score || 0) - (a.score || 0);
+    if (sort === 'score-asc') return (a.score || 0) - (b.score || 0);
+    if (sort === 'company') return compareText(a.company, b.company);
+    if (sort === 'company-desc') return compareText(b.company, a.company);
+    if (sort === 'sector') return compareText(a.sector, b.sector) || compareText(a.company, b.company);
+    if (sort === 'postcode') return compareText(a.postcode, b.postcode) || compareText(a.company, b.company);
+    if (sort === 'priority') return priorityRank(a.priority) - priorityRank(b.priority) || (b.score || 0) - (a.score || 0);
+    if (sort === 'status') return compareText(a.status, b.status) || (b.score || 0) - (a.score || 0);
+    if (sort === 'date') return compareText(b.scout_date, a.scout_date) || (b.score || 0) - (a.score || 0);
+    if (sort === 'date-asc') return compareText(a.scout_date, b.scout_date) || (b.score || 0) - (a.score || 0);
+    return (b.score || 0) - (a.score || 0);
+  });
+}
+function filteredSortedLeads(leads) {
+  return sortLeads(leads.filter(leadMatchesSearch));
+}
+function emptyMessage(defaultText) {
+  return searchQuery()
+    ? '<div class="empty">No matching leads in this tab.</div>'
+    : `<div class="empty">${defaultText}</div>`;
+}
 
 function _setTabCount(id, n) {
   const el = document.getElementById(id);
@@ -1746,83 +1811,76 @@ function _setTabCount(id, n) {
 }
 
 function renderEmailQueue() {
-  const leads = _leads.filter(l => hasUsableEmail(l) && !_ACTIONED.includes(l.status))
-    .sort((a,b) => (b.score||0)-(a.score||0));
+  const leads = filteredSortedLeads(_leads.filter(l => hasUsableEmail(l) && !_ACTIONED.includes(l.status)));
   _setTabCount('tab-count-email-queue', leads.length);
   const badge = document.getElementById('email-queue-count-badge');
   if (badge) badge.textContent = leads.length;
   document.getElementById('email-queue-container').innerHTML = leads.length
     ? leads.slice(0,30).map(leadCard).join('')
-    : '<div class="empty">No leads ready to email.</div>';
+    : emptyMessage('No leads ready to email.');
 }
 
 function renderPhoneQueue() {
-  const leads = _leads.filter(l => !hasUsableEmail(l) && l.phone && !_ACTIONED.includes(l.status))
-    .sort((a,b) => (b.score||0)-(a.score||0));
+  const leads = filteredSortedLeads(_leads.filter(l => !hasUsableEmail(l) && l.phone && !_ACTIONED.includes(l.status)));
   _setTabCount('tab-count-phone-queue', leads.length);
   const badge = document.getElementById('phone-queue-count-badge');
   if (badge) badge.textContent = leads.length;
   document.getElementById('phone-queue-container').innerHTML = leads.length
     ? leads.slice(0,30).map(leadCard).join('')
-    : '<div class="empty">No phone-only leads in queue.</div>';
+    : emptyMessage('No phone-only leads in queue.');
 }
 
 function renderOutreach() {
-  const leads = _leads.filter(l => ['Email Sent','Contacted'].includes(l.status))
-    .sort((a,b) => (b.score||0)-(a.score||0));
+  const leads = filteredSortedLeads(_leads.filter(l => ['Email Sent','Contacted'].includes(l.status)));
   _setTabCount('tab-count-outreach', leads.length);
   const badge = document.getElementById('outreach-count-badge');
   if (badge) badge.textContent = leads.length;
   document.getElementById('outreach-container').innerHTML = leads.length
     ? leads.map(leadCard).join('')
-    : '<div class="empty">No outreach recorded yet.</div>';
+    : emptyMessage('No outreach recorded yet.');
 }
 
 function renderResponded() {
-  const leads = _leads.filter(l => l.status === 'Responded')
-    .sort((a,b) => (b.score||0)-(a.score||0));
+  const leads = filteredSortedLeads(_leads.filter(l => l.status === 'Responded'));
   _setTabCount('tab-count-responded', leads.length);
   const badge = document.getElementById('responded-count-badge');
   if (badge) badge.textContent = leads.length;
   document.getElementById('responded-container').innerHTML = leads.length
     ? leads.map(leadCard).join('')
-    : '<div class="empty">No responses yet.</div>';
+    : emptyMessage('No responses yet.');
 }
 
 function renderContracted() {
-  const leads = _leads.filter(l => l.status === 'Contracted')
-    .sort((a,b) => (b.score||0)-(a.score||0));
+  const leads = filteredSortedLeads(_leads.filter(l => l.status === 'Contracted'));
   _setTabCount('tab-count-contracted', leads.length);
   const badge = document.getElementById('contracted-count-badge');
   if (badge) badge.textContent = leads.length;
   document.getElementById('contracted-container').innerHTML = leads.length
     ? leads.map(leadCard).join('')
-    : '<div class="empty">No contracted leads yet.</div>';
+    : emptyMessage('No contracted leads yet.');
 }
 
 function renderResearch() {
-  const leads = _leads.filter(l => !hasUsableEmail(l) && !l.phone && l.priority === 'High' && l.status !== 'Not Relevant')
-    .sort((a,b) => (b.score||0)-(a.score||0));
+  const leads = filteredSortedLeads(_leads.filter(l => !hasUsableEmail(l) && !l.phone && l.priority === 'High' && l.status !== 'Not Relevant'));
   _setTabCount('tab-count-research', leads.length);
   const badge = document.getElementById('research-count-badge');
   if (badge) badge.textContent = leads.length;
   document.getElementById('research-container').innerHTML = leads.length
     ? leads.slice(0,30).map(leadCard).join('')
-    : '<div class="empty">No leads awaiting research.</div>';
+    : emptyMessage('No leads awaiting research.');
 }
 
 function renderNotRelevant() {
-  const leads = _leads.filter(l => l.status === 'Not Relevant')
-    .sort((a, b) => (b.score || 0) - (a.score || 0));
+  const leads = filteredSortedLeads(_leads.filter(l => l.status === 'Not Relevant'));
   const badge = document.getElementById('not-relevant-count-badge');
   const tabCount = document.getElementById('tab-count-not-relevant');
   if (badge) badge.textContent = leads.length;
   if (tabCount) tabCount.textContent = leads.length ? `(${leads.length})` : '';
   document.getElementById('not-relevant-container').innerHTML = leads.length
     ? leads.map(leadCard).join('')
-    : '<div class="empty">Nothing marked Not Relevant. Use the button on any lead to move it here.</div>';
+    : emptyMessage('Nothing marked Not Relevant. Use the button on any lead to move it here.');
 }
-function renderAll() {} // stub — all-leads tab removed
+function renderAll() { renderAll_data(); } // compatibility stub: all-leads tab removed
 
 // ── Tab switching ──────────────────────────────────────────────────────────
 document.querySelectorAll('.tab-btn').forEach(btn => {
