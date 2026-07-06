@@ -770,12 +770,12 @@ a{color:inherit;text-decoration:none}
 <!-- NR modal -->
 <div id="nr-modal-backdrop" onclick="if(event.target===this)closeNrModal()">
   <div id="nr-modal">
-    <h3>Mark as not relevant</h3>
-    <p>Add a note so the system can learn from this decision (optional).</p>
+    <h3 id="nr-modal-title">Mark as not relevant</h3>
+    <p id="nr-modal-copy">Add a note so the system can learn from this decision (optional).</p>
     <textarea id="nr-modal-textarea" placeholder="Already a customer, wrong sector, too small..."></textarea>
     <div class="modal-actions">
       <button onclick="closeNrModal()">Cancel</button>
-      <button class="confirm-btn" onclick="submitNotRelevant()">Confirm</button>
+      <button id="nr-modal-confirm" class="confirm-btn" onclick="submitActionNotes()">Confirm</button>
     </div>
   </div>
 </div>
@@ -1773,7 +1773,7 @@ function leadCard(l) {
         : `${['Contacted','Email Sent','Responded','Contracted','Not Relevant'].includes(l.status) ? '' : hasUsableEmail(l)
             ? `<button class="btn-sm draft-btn" onclick="draftEmail('${l.id}')">Draft email</button>
                <button class="btn-sm" onclick="copyEmail('${l.id}')">Copy email</button>`
-            : `<button class="btn-sm contacted-btn" onclick="updateStatus('${l.id}','Contacted')">Mark contacted</button>`}
+            : `<button class="btn-sm contacted-btn" onclick="markContacted('${l.id}')">Mark contacted</button>`}
           ${['Contacted','Email Sent'].includes(l.status) ? `<button class="btn-sm responded-btn" onclick="updateStatus('${l.id}','Responded')">Mark as Responded</button>` : ''}
           ${l.status === 'Email Sent' ? `<button class="btn-sm notrel-btn" onclick="markEmailBounced('${l.id}')">Email Bounced</button>` : ''}
           ${['Contracted','Not Relevant'].includes(l.status) ? '' : `<button class="btn-sm" onclick="updateStatus('${l.id}','Contracted')">Contracted</button>`}
@@ -1785,21 +1785,57 @@ function leadCard(l) {
 
 // === NR modal ============================================================
 let _nrPendingId = null;
-function markNotRelevant(id) {
+let _nrPendingStatus = 'Not Relevant';
+function openActionNotesModal({ id, status, title, copy, placeholder, confirmText }) {
   _nrPendingId = id;
+  _nrPendingStatus = status;
+  document.getElementById('nr-modal-title').textContent = title;
+  document.getElementById('nr-modal-copy').textContent = copy;
   document.getElementById('nr-modal-textarea').value = '';
+  document.getElementById('nr-modal-textarea').placeholder = placeholder;
+  document.getElementById('nr-modal-confirm').textContent = confirmText;
   document.getElementById('nr-modal-backdrop').classList.add('open');
   setTimeout(() => document.getElementById('nr-modal-textarea').focus(), 50);
 }
+function markNotRelevant(id) {
+  openActionNotesModal({
+    id,
+    status: 'Not Relevant',
+    title: 'Mark as not relevant',
+    copy: 'Add a note so the system can learn from this decision (optional).',
+    placeholder: 'Already a customer, wrong sector, too small...',
+    confirmText: 'Confirm'
+  });
+}
+function markContacted(id) {
+  openActionNotesModal({
+    id,
+    status: 'Contacted',
+    title: 'Mark as contacted',
+    copy: 'Add what happened on the call and any next step. Keeps the scout useful without turning it into a CRM.',
+    placeholder: 'Not interested, call back next week, asked for info by email...',
+    confirmText: 'Mark contacted'
+  });
+}
 function closeNrModal() {
   _nrPendingId = null;
+  _nrPendingStatus = 'Not Relevant';
   document.getElementById('nr-modal-backdrop').classList.remove('open');
 }
-async function submitNotRelevant() {
+async function submitActionNotes() {
   const notes = document.getElementById('nr-modal-textarea').value.trim();
   const id = _nrPendingId;
+  const status = _nrPendingStatus;
   closeNrModal();
-  if (id) await updateStatus(id, 'Not Relevant', notes || null);
+  if (id) await updateStatus(id, status, notes || null);
+}
+function statusNotesPatch(lead, newStatus, notes) {
+  if (newStatus === 'Not Relevant') return notes ?? null;
+  if (newStatus !== 'Contacted' || !notes) return undefined;
+  const existing = (lead?.relevance_notes || '').trim();
+  const stamp = new Date().toISOString().slice(0, 10);
+  const entry = `Phone contact note (${stamp}): ${notes}`;
+  return existing ? `${existing}\n${entry}` : entry;
 }
 
 // === Status update =======================================================
@@ -1809,14 +1845,15 @@ async function updateStatus(id, newStatus, notes) {
   const btns  = document.querySelectorAll(`#lc-${id} button`);
   btns.forEach(b => b.disabled = true);
   try {
+    const previous = _leads.find(l => l.id===id);
+    const relevanceNotes = statusNotesPatch(previous, newStatus, notes);
     const update = { status:newStatus };
-    if (newStatus==='Not Relevant') update.relevance_notes = notes ?? null;
+    if (relevanceNotes !== undefined) update.relevance_notes = relevanceNotes;
     const { error } = await _sb.from(table).update(update).eq('id', id);
     if (error) throw error;
-    const previous = _leads.find(l => l.id===id);
     trackEvent('lead_status_updated', { ...compactLeadMeta(previous), from_status:previous?.status||null, to_status:newStatus });
     const patch = { status:newStatus };
-    if (newStatus==='Not Relevant') patch.relevance_notes = notes ?? null;
+    if (relevanceNotes !== undefined) patch.relevance_notes = relevanceNotes;
     _leads = _leads.map(l => l.id===id ? enrichLead({ ...l, ...patch }) : l);
     renderAll_data();
   } catch(e) {
