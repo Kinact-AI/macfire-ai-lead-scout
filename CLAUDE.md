@@ -5,7 +5,7 @@
 This public repo contains the **lead dashboard front-end only**:
 
 - `index.html` — the live lead dashboard, served via GitHub Pages at
-  https://jonathanmccrimmond.github.io/macfire-ai-lead-scout/
+  https://kinact-ai.github.io/macfire-ai-lead-scout/
 - `config.js` — Supabase connection config (anon key, read paths)
 - `src/scrapers/social/` — social enrichment scraper stubs
 
@@ -82,7 +82,7 @@ database has been untouched since the June 2026 cutover. The `notion_page_id` /
 ## Related
 
 - Projects dashboard (status, wins, next steps in plain English):
-  https://github.com/jonathanmccrimmond/macfire-projects-dashboard
+  https://github.com/Kinact-AI/macfire-projects-dashboard
   After meaningful work here, update its `data/projects.js` following the
   writing style rules in its CLAUDE.md
 - Info deck: canonical copy on Google Drive

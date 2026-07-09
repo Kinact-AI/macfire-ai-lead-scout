@@ -2,7 +2,7 @@
 
 Public dashboard front-end for MacFire AI Lead Scout. Static HTML, hosted on GitHub Pages, reads from Supabase.
 
-Live: https://jonathanmccrimmond.github.io/macfire-ai-lead-scout/
+Live: https://kinact-ai.github.io/macfire-ai-lead-scout/
 
 ## What's in this repo
 
