@@ -42,6 +42,12 @@ database has been untouched since the June 2026 cutover. The `notion_page_id` /
     (persisted in browser localStorage)
   - Not Relevant tab with one-click "Add back to queue" action
   - Latest-run chip in the header (run date + lead count + priority breakdown)
+  - Leads anonymised by the retention job (`anonymized_at` set) are hidden
+    from every tab rather than rendered with blank fields
+  - "Needs Review" / "Opted Out" badges surface `retention_review_due` /
+    `opted_out` from the macfire-production retention job (see that repo's
+    `docs/legitimate-interests-assessment.md`); read-only, no dashboard
+    action to set these yet
 - Supabase `public.leads` is the single source of truth (~270 live leads). The
   earlier Notion proof of concept has been retired (originally ~443 imported,
   then cleaned down)

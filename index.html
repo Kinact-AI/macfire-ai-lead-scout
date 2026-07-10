@@ -834,7 +834,11 @@ async function loadData() {
       .select('*')
       .order('score', { ascending: false });
     if (error) throw error;
-    _leads = (data || []).map(normalizeLead).map(enrichLead);
+    // Anonymised leads (rejected 30+ days, or opted-out) have had their
+    // personal data cleared by the retention job; hide them from every tab
+    // rather than rendering blank rows. See docs/legitimate-interests-assessment.md
+    // in macfire-production.
+    _leads = (data || []).filter(l => !l.anonymized_at).map(normalizeLead).map(enrichLead);
     if (_leads.length === 0) {
       showBanner('warning',
         `Connected to the production database but no rows returned from the <strong>${table}</strong> table. ` +
@@ -1177,6 +1181,14 @@ function channelBadge(cq) {
   if (cq === 'Ready to phone') return `<span class="badge badge-ch-phone">Phone</span>`;
   return '';
 }
+function retentionBadge(l) {
+  // opted_out shows briefly before the weekly retention job anonymises the
+  // lead; retention_review_due flags a New Lead uncontacted 90+ days, for a
+  // human to re-review or delete. See macfire-production's retention.py.
+  if (l.opted_out) return `<span class="badge badge-noresp">Opted Out</span>`;
+  if (l.retention_review_due) return `<span class="badge badge-research">Needs Review</span>`;
+  return '';
+}
 
 function esc(s) {
   const str = s == null ? '' : (Array.isArray(s) ? s.join(', ') : String(s));
@@ -1505,6 +1517,7 @@ function leadCard(l) {
       ${statusBadge(l.status)}
       ${queueBadge(l.enrichmentQueue)}
       ${channelBadge(l.channelQueue)}
+      ${retentionBadge(l)}
     </div>
     <div class="lead-detail">
       ${l.director ? `<div><strong>Director:</strong> ${esc(l.director)}</div>` : ''}
